@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 /**
+ * @author Wesley Pilamunga
  * The WriterService Class writes reports to the console or to a file.
  * 
  * This service provides concrete implementation for OutputWriter,
