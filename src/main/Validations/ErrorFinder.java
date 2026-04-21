@@ -1,4 +1,4 @@
-package Validation;
+package Validations;
 
 /**
  * This class looks for messy data or blank spots that might break the program.

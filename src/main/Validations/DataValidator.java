@@ -1,4 +1,4 @@
-package Validation;
+package Validations;
 
 /**
  * This class looks at the specific pieces of information in each row to catch typos or errors.

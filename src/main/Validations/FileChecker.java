@@ -1,4 +1,4 @@
-package Validation;
+package Validations;
 
 /**
  * This class handles the main checks for the entire budget file.

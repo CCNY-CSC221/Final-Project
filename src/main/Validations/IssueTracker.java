@@ -1,4 +1,4 @@
-package Validation;
+package Validations;
 
 /**
  * This class keeps a list of every error found and shows it to the user.
