@@ -1,4 +1,4 @@
-package insights;
+package Insights;
 
 import java.util.*;
 
