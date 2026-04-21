@@ -26,7 +26,7 @@ interface ReportGenerator {
      * @param userId the unique identifier of the user
      * @param year the year for which the report is generated
      */
-    void generateCatergoryReport(String userId, int year);
+    void generateCategoryReport(String userId, int year);
 
     /**
      * Generates a monthly summary report for a specific user and year.

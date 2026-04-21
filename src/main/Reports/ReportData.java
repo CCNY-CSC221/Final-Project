@@ -1,7 +1,7 @@
 package Reports;
 
-import java.util.Map;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 
@@ -11,8 +11,8 @@ import java.util.HashMap;
 
 public class ReportData {
 
-    private Map<String, Integer> monthlyTotals;
-    private Map<String, Integer> categoryTotals;
+    private List<MonthlyTotal> monthlyTotals;
+    private List<CategoryTotal> categoryTotals;
     private int netIncome;
 
     /**
@@ -21,8 +21,8 @@ public class ReportData {
      */
 
     public ReportData() {
-        this.monthlyTotals = new HashMap<>();
-        this.categoryTotals = new HashMap<>();
+        this.monthlyTotals = new ArrayList<>();
+        this.categoryTotals = new ArrayList<>();
         this.netIncome = 0;
     }
 
@@ -31,7 +31,7 @@ public class ReportData {
      * @return A map of totals by month
      */
 
-    public Map<String, Integer> getMonthlyTotals() {
+    public List<MonthlyTotal> getMonthlyTotals() {
         return monthlyTotals;
     }
 
@@ -40,7 +40,7 @@ public class ReportData {
      * @return A map of totals by category
      */
 
-    public Map<String, Integer> getCategoryTotals() {
+    public List<CategoryTotal> getCategoryTotals() {
         return categoryTotals;
     }
 
@@ -61,5 +61,35 @@ public class ReportData {
 
     public void addTransaction(Object transaction) {
         // Writing 'Object' instead of 'Transaction' since we dont have the Storage Team's code yet
+    }
+}
+
+/**
+ * Including a helper class to store a month and its total
+ * @author Henry Tran
+ */
+
+class MonthlyTotal {
+    String monthName;
+    int totalAmount;
+
+    public MonthlyTotal(String month, int amount) {
+        this.monthName = month;
+        this.totalAmount = amount;
+    }
+}
+
+/**
+ * Including a helper class to store categories and its total
+ * @author Henry Tran
+ */
+
+class CategoryTotal {
+    String categoryName;
+    int totalAmount;
+
+    public CategoryTotal(String name, int amount) {
+        this.categoryName = name;
+        this.totalAmount = amount;
     }
 }
