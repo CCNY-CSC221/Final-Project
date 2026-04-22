@@ -2,7 +2,7 @@ package Validations;
 
 /**
  * This class keeps a list of every error found and shows it to the user.
- * * @author Sharif Parvez, Redwan Bari, Elham Mahmud, Jamis Blade (Validation Team)
+ * * @author Sharif Parvez, Redwan Bari, Elham Mahmud, Jamis Bade (Validation Team)
  */
 public class IssueTracker {
 
