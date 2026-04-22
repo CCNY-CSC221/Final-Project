@@ -2,7 +2,7 @@ package Validations;
 
 /**
  * This class handles the main checks for the entire budget file.
- * * @author Sharif Parvez, Redwan Bari, Elham Mahmud, Jamis Blade (Validation Team)
+ * * @author Sharif Parvez, Redwan Bari, Elham Mahmud, Jamis Bade (Validation Team)
  */
 public class FileChecker {
 
