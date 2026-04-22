@@ -2,7 +2,7 @@ package Validations;
 
 /**
  * This class looks at the specific pieces of information in each row to catch typos or errors.
- * * @author Sharif Parvez, Redwan Bari, Elham Mahmud, Jamis Blade (Validation Team)
+ * * @author Sharif Parvez, Redwan Bari, Elham Mahmud, Jamis Bade (Validation Team)
  */
 public class DataValidator {
 
