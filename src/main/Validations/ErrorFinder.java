@@ -2,7 +2,7 @@ package Validations;
 
 /**
  * This class looks for messy data or blank spots that might break the program.
- * * @author Sharif Parvez, Redwan Bari, Elham Mahmud, Jamis Blade (Validation Team)
+ * * @author Sharif Parvez, Redwan Bari, Elham Mahmud, Jamis Bade (Validation Team)
  */
 public class ErrorFinder {
 
