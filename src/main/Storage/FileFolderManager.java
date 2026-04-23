@@ -11,7 +11,7 @@ public class FileFolderManager {
      * @param path file path
      * @throws IOException if file exist or path not valid
      */
-    public static void createFile(String path) {}
+    public static void createFile(String path) throws IOException {}
     
     /**
      * Deletes a file.
@@ -19,7 +19,7 @@ public class FileFolderManager {
      * @param path file path
      * @throws IOException if file does not exist
      */
-    public static void deleteFile(String path) {}
+    public static void deleteFile(String path) throws IOException{}
 
     /**
      * Checks if file exists.
@@ -27,7 +27,7 @@ public class FileFolderManager {
      * @param path file path
      * @return true if exists
      */
-    public static boolean isFileExists(String path) {}
+    public static boolean isFileExists(String path) throws IOException{}
 
     /**
      * Lists files in folder.
@@ -35,7 +35,7 @@ public class FileFolderManager {
      * @param path folder path
      * @return array of file names
      */
-    public static String[] listFilesInFolder(String path) {}
+    public static String[] listFilesInFolder(String path) throws IOException{}
     
     /**
      
@@ -45,7 +45,7 @@ public class FileFolderManager {
      * @return file content
      * @throws IOException if file not exist
      */
-    public static String readFile(String path) {}
+    public static String readFile(String path) throws IOException{}
 
     /**
      * Writes content to file.
@@ -54,7 +54,7 @@ public class FileFolderManager {
      * @param content text content
      * @throws IOException if file does not exist
      */
-    public static void writeFile(String path, String content) {}
+    public static void writeFile(String path, String content) throws IOException{}
 
     /**
      * Creates a folder.
@@ -62,7 +62,7 @@ public class FileFolderManager {
      * @param path folder path
      * @throws IOException if folder exist or path not valid
      */
-    public static void createFolder(String path) {}
+    public static void createFolder(String path) throws IOException{}
 
     /**
      * Checks if folder exists.
@@ -86,5 +86,5 @@ public class FileFolderManager {
      * @param path folder path
      * @throws IOException if folder does not exist
      */
-    public static void deleteFolder(String path) {}
+    public static void deleteFolder(String path) throws IOException{}
 }
