@@ -36,7 +36,7 @@ public class WriterService implements OutputWriter {
      * @throws IOException if an I/O error occurs while writing to the file
      */
     @Override
-    public void writeToFile(String report, String filePath, boolean append) {
+    public void writeToFile(String report, String filePath, boolean append) throws IOException {
         if (report == null || report.isBlank() || filePath == null || filePath.isBlank()) {
             return;
         }
