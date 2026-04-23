@@ -4,7 +4,6 @@ package Integration;
  * Gets user input from the menu and sends requests.
  *
  * @author Dmytro Shumlianskyi
- * @bug none known
  */
 public class FrontendConnector {
 

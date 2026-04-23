@@ -4,7 +4,6 @@ package Integration;
  * Checks system health and reports errors.
  *
  * @author Dmytro Shumlianskyi
- * @bug none known
  */
 public class SystemMonitor {
 

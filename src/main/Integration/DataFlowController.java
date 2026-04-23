@@ -4,7 +4,6 @@ package Integration;
  * Controls how data moves between modules.
  *
  * @author Dmytro Shumlianskyi
- * @bug none known
  */
 public class DataFlowController {
 
