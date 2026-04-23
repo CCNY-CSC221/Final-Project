@@ -103,7 +103,7 @@ class TransactionLedger implements Comparable<TransactionLedger> {
      * @param filePath file path
      * @throws IOException if file cannot be read
      */
-    public TransactionLedger(String filePath) {}
+    public TransactionLedger(String filePath) throws IOException {}
 
     /**
      * Parses CSV text into a ledger.
@@ -242,7 +242,7 @@ public class FileFolderManager {
      * @param path file path
      * @throws IOException if file does not exist
      */
-    public static void deleteFile(String path) {}
+    public static void deleteFile(String path) throws IOException {}
 
     /**
      * Checks if file exists.
@@ -268,7 +268,7 @@ public class FileFolderManager {
      * @return file content
      * @throws IOException if file not exist
      */
-    public  static String readFile(String path) {}
+    public  static String readFile(String path) throws IOException {}
 
     /**
      * Writes content to file.
@@ -277,7 +277,7 @@ public class FileFolderManager {
      * @param content text content
      * @throws IOException if file does not exist
      */
-    public  static void writeFile(String path, String content) {}
+    public  static void writeFile(String path, String content) throws IOException {}
 
     /**
      * Creates a folder.
@@ -285,7 +285,7 @@ public class FileFolderManager {
      * @param path folder path
      * @throws IOException if folder exist or path not valid
      */
-    public  static void createFolder(String path) {}
+    public  static void createFolder(String path) throws IOException {}
 
     /**
      * Checks if folder exists.
@@ -309,7 +309,7 @@ public class FileFolderManager {
      * @param path folder path
      * @throws IOException if folder does not exist
      */
-    public  static void deleteFolder(String path) {}
+    public  static void deleteFolder(String path) throws IOException {}
 }
 
 /**
