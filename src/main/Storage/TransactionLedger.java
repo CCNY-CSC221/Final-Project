@@ -20,7 +20,7 @@ public class TransactionLedger implements Comparable<TransactionLedger> {
      * @param filePath file path
      * @throws IOException if file cannot be read
      */
-    public TransactionLedger(String filePath) @throws IOException{}
+    public TransactionLedger(String filePath) throws IOException{}
 
     /**
      * Parses CSV text into a ledger.
