@@ -1,32 +1,24 @@
+---
 name: Bug Report
 description: Report any issue in the system
-title: "[Bug] "
-labels: ["Accounts"]  
+title: "[Bug]"
+labels: ["accounts"]  # change per team
+---
 
-body:
-  - type: textarea
-    id: problem
-    attributes:
-      label: What is the problem?
-      placeholder: Describe what went wrong
-    validations:
-      required: true
+## What is the problem?
+<!-- Describe what went wrong -->
 
-  - type: textarea
-    id: steps
-    attributes:
-      label: Steps to reproduce
-      placeholder: 1. Go to...
-                   2. Click...
-                   3. See error
 
-  - type: textarea
-    id: expected
-    attributes:
-      label: What should happen?
+## Steps to reproduce
+<!-- 
+1. Go to...
+2. Click...
+3. See error
+-->
 
-  - type: textarea
-    id: extra
-    attributes:
-      label: Extra details (optional)
-      placeholder: Error messages, screenshots, logs
+
+## What should happen?
+
+
+## Extra details (optional)
+<!-- Error messages, screenshots, logs -->
