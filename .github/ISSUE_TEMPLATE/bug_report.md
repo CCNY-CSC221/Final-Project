@@ -1,6 +1,6 @@
 ---
 name: Bug Report
-description: Report any issue in the system
+about: Report any issue in the system
 title: "[Bug]"
 labels: ["accounts"]  # change per team
 ---
