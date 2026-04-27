@@ -1,5 +1,3 @@
-package Insights;
-
 import java.util.*;
 
 /**
