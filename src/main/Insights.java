@@ -13,7 +13,41 @@ public class Insights {
 	 * @param targetCategories Categories to be reduced.
 	 */
 	public Map<String, Double> analyzeDeficit(Object ledger, List<String> targetCategories) {
-		return null;
+		Map<String, Double> reductionSuggestions = new HashMap<>();
+
+		// Safety Check (Validation/Error)
+		if (targetCategories == null || targetCategories.isEmpty()) {
+			return reductionSuggestions;
+		}
+
+		/**
+		 * Integration Bridge Once Storage moves to default package, uncomment the lines
+		 * below: TransactionLedger ledger = (TransactionLedger) ledgerPlaceholder;
+		 * double totalIncome = ledger.getTotalIncome(); double totalExpense =
+		 * ledger.getTotalExpense();
+		 */
+
+		// PLACEHOLDER VALUES for current development
+		double totalIncome = 40000.0;
+		double totalExpense = 50000.0;
+		double totalDeficit = totalExpense - totalIncome;
+
+		// Surplus Check (If income >= expenses, no cuts needed)
+		if (totalDeficit <= 0) {
+			return reductionSuggestions;
+		}
+
+		// Proportional Reduction Logic
+		// We divide the total deficit by the number of categories the user is willing
+		// to cut.
+		double cutAmountPerCategory = totalDeficit / targetCategories.size();
+
+		for (String category : targetCategories) {
+			reductionSuggestions.put(category, cutAmountPerCategory);
+		}
+
+		return reductionSuggestions;
+
 	}
 
 	/**
