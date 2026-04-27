@@ -1,4 +1,5 @@
 package Reports;
+//TODO add imports when Storage config is done
 /**
  * Provides report generation services.
  * Implements the ReportGenerator interface.
@@ -7,21 +8,24 @@ package Reports;
  */
 public class ReportService implements ReportGenerator {
 
-    private int storageService;
+    private StorageService storageService;
 
     /**
      * Creates a ReportService with default storage.
      */
     public ReportService() {
+        this.storageService = new StorageService();
     }
+       
 
     /**
      * Creates a ReportService with a specified storage service.
      *
-     * @param storageService the storage service used for report data // TODO: Change to StorageService type when implemented
+     * @param storageService the storage service used for report data
      */
-    public ReportService(int storageService) {
+    public ReportService(StorageService storageService) {
         this.storageService = storageService;
+      
     }
 
     /**
@@ -32,6 +36,21 @@ public class ReportService implements ReportGenerator {
      */
     @Override
     public void generateAnnualReport(String userId, int year) {
+
+        UserStorage user = StorageService.loadUserStorage(userId);
+
+        if(!user.hasLedgerForYear(year)) {
+            System.out.println("No ledger data found for user " + userId + " in year " + year);
+            return;
+        }
+        TransactionLedger ledger = user.getLedgerByYear(year);
+        
+        ReportData data = new ReportData(ledger);
+
+        System.out.println(formatReport(data));
+
+        
+        
     }
 
     /**
@@ -42,6 +61,20 @@ public class ReportService implements ReportGenerator {
      */
     @Override
     public void generateCategoryReport(String userId, int year) {
+
+        UserStorage user = StorageService.loadUserStorage(userId);
+
+        if(!user.hasLedgerForYear(year)) {
+            System.out.println("No ledger data found for user " + userId + " in year " + year);
+            return;
+        }
+        TransactionLedger ledger = user.getLedgerByYear(year);
+        
+        ReportData data = new ReportData(ledger);
+
+        System.out.println(formatReport(data));
+
+        
     }
 
     /**
@@ -52,6 +85,18 @@ public class ReportService implements ReportGenerator {
      */
     @Override
     public void generateMonthlySummary(String userId, int year) {
+
+        UserStorage user = StorageService.loadUserStorage(userId);
+
+        if(!user.hasLedgerForYear(year)) {
+            System.out.println("No ledger data found for user " + userId + " in year " + year);
+            return;
+        }
+        TransactionLedger ledger = user.getLedgerByYear(year);
+        
+        ReportData data = new ReportData(ledger);
+
+        System.out.println(formatReport(data));
     }
 
     /**
@@ -60,7 +105,8 @@ public class ReportService implements ReportGenerator {
      * @param data the report data
      * @return formatted report text
      */
+    @Override
     public String formatReport(ReportData data) {
-        return "";
+        return data.toString();
     }
 }

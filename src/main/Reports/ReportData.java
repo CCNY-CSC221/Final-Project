@@ -1,23 +1,22 @@
 package Reports;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalDate;
+//TODO add Transaction import when Storage config is done
 
 /**
- * 
  * This class stores the calculated financial data for reports.
- * * @author Henry Tran
+ * It uses helper classes and ArrayLists to group data.
+ * @author Henry Tran
  */
-
 public class ReportData {
 
     private List<MonthlyTotal> monthlyTotals;
     private List<CategoryTotal> categoryTotals;
-    private int netIncome;
+    private float netIncome;
 
     /**
-     * 
-     * Initalizing data strcutures with the constructor
+     * Initializes data structures with the constructor.
      */
 
     public ReportData() {
@@ -27,8 +26,7 @@ public class ReportData {
     }
 
     /**
-     * 
-     * @return A map of totals by month
+     * @return A list of totals grouped by month.
      */
 
     public List<MonthlyTotal> getMonthlyTotals() {
@@ -36,8 +34,7 @@ public class ReportData {
     }
 
     /**
-     * 
-     * @return A map of totals by category
+     * @return A list of totals grouped by category.
      */
 
     public List<CategoryTotal> getCategoryTotals() {
@@ -45,50 +42,89 @@ public class ReportData {
     }
 
     /**
-     * 
-     * @return Obtaining the net income
+     * @return The current calculated net income.
      */
 
-    public int getNetIncome() {
+    public float getNetIncome() {
         return netIncome;
     }
 
     /**
-     * 
-     * Adds a transaction to the data
-     * @param transaction The transaction to add
+     * Adds a transaction and updates monthly, category, and net totals.
+     * @param transaction The transaction object from the Storage Team.
      */
 
-    public void addTransaction(Object transaction) {
-        // Writing 'Object' instead of 'Transaction' since we dont have the Storage Team's code yet
+    public void addTransaction(Transaction transaction) {
+        String category = transaction.getCategory();
+
+        // Extract month name from LocalDate
+
+        String month = transaction.getDate().getMonth().toString();
+        float amount = transaction.getAmount();
+
+        // 1 - Update Category Totals
+
+        boolean categoryFound = false;
+        for (CategoryTotal ct : categoryTotals) {
+            if (ct.categoryName.equalsIgnoreCase(category)) {
+                ct.totalAmount += amount;
+                categoryFound = true;
+                break;
+            }
+        }
+        if (!categoryFound) {
+            categoryTotals.add(new CategoryTotal(category, amount));
+        }
+
+        // 2 - Update Monthly Totals
+
+        boolean monthFound = false;
+        for (MonthlyTotal mt : monthlyTotals) {
+            if (mt.monthName.equalsIgnoreCase(month)) {
+                mt.totalAmount += amount;
+                monthFound = true;
+                break;
+            }
+        }
+        if (!monthFound) {
+            monthlyTotals.add(new MonthlyTotal(month, amount));
+        }
+
+        // 3 - Update net incoem (Income vs Expense)
+
+        if (transaction.getType().equalsIgnoreCase("income")) {
+            this.netIncome += amount;
+        } else {
+            this.netIncome -= amount;
+        }
     }
 }
 
 /**
- * Including a helper class to store a month and its total
+ * Helper class to store a month and its total amount.
  * @author Henry Tran
  */
 
 class MonthlyTotal {
     String monthName;
-    int totalAmount;
+    float totalAmount;
 
-    public MonthlyTotal(String month, int amount) {
+    public MonthlyTotal(String month, float amount) {
         this.monthName = month;
         this.totalAmount = amount;
     }
 }
 
 /**
- * Including a helper class to store categories and its total
+ * Helper class to store a category name and its total amount.
  * @author Henry Tran
  */
 
 class CategoryTotal {
     String categoryName;
-    int totalAmount;
+    float totalAmount;
 
-    public CategoryTotal(String name, int amount) {
+    public CategoryTotal(String name, float amount) {
         this.categoryName = name;
         this.totalAmount = amount;
     }
