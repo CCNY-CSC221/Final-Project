@@ -23,7 +23,17 @@ public class FrontendConnector {
      * @author Dmytro Shumlianskyi
      */
     public boolean receiveUserInput(String input) {
-        return false; // Implementation WIP
+        if (input == null || input.trim().isEmpty()) {
+            return false;
+        }
+
+        try {
+            int option = Integer.parseInt(input);
+
+            return option >= 1 && option <= 6;
+        } catch (NumberFormatException exception) {
+            return false;
+        }
     }
 
     /**
@@ -34,6 +44,34 @@ public class FrontendConnector {
      * @author Dmytro Shumlianskyi
      */
     public boolean sendUserRequest(String requestType) {
-        return false; // Implementation WIP
+        if (requestType == null || requestType.trim().isEmpty()) {
+            return false;
+        }
+
+        // PLACEHOLDER:
+        // These request names are temporary until real module calls are connected.
+        // Later, each case should call the correct module or DataFlowController.
+        switch (requestType.toLowerCase()) {
+            case "load":
+                return true; // TODO: connect to Validation/Storage workflow
+
+            case "report":
+                return true; // TODO: connect to Reports module
+
+            case "insight":
+                return true; // TODO: connect to Insights module
+
+            case "audit":
+                return true; // TODO: connect to Data Audit module
+
+            case "delete":
+                return true; // TODO: connect to Storage delete workflow
+
+            case "exit":
+                return true; // TODO: connect to clean program exit
+
+            default:
+                return false;
+        }
     }
 }
