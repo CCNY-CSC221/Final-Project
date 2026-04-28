@@ -102,7 +102,18 @@ public class Accounts {
          * @return true if the password is successfully changed, false otherwise
          */
         public boolean changePassword(String username, String oldPassword, String newPassword) {
-            return true; // Implementation WIP
+                // Validate input parameters
+                if (username == null || username.isBlank() || oldPassword == null || oldPassword.isBlank() || newPassword == null || newPassword.isBlank()) {
+                    return false; // Invalid input
+                }
+
+                // Verify the old password
+                if (!signIn(username, oldPassword)) {
+                    return false; // Authentication failed
+                }
+
+                // Update the password
+                return updateAccount(username, oldPassword, newPassword);
         }
 
         /**
@@ -116,7 +127,25 @@ public class Accounts {
          * @return true if the password is successfully reset, false otherwise
          */
         public boolean resetPasswordBySecretQuestion(String username, String email, String secretAnswer, String newPassword) {
-            return true; // Implementation WIP
+            // Validate input parameters
+            if (username == null || username.isBlank() || email == null || email.isBlank() || secretAnswer == null || secretAnswer.isBlank() || newPassword == null || newPassword.isBlank()) {
+                return false; // Invalid input
+            }
+            // Verify the secret answer
+            return verifySecretAnswer(username, secretAnswer) && updateAccount(username, password, newPassword);
+        }
+
+        public boolean verifySecretAnswer(String username, String secretAnswer) {
+            // Input validation
+            if (username == null || username.isBlank() || secretAnswer == null || secretAnswer.isBlank()) {
+                return false; // Invalid input
+            }
+            // Check if the provided secret answer matches the stored answer for the user
+            Accounts account = readAccount(username);
+            if (account == null) {
+                    return false; // Account not found
+            }
+            return secretAnswer.equals(account.secretAnswer);
         }
 
 }
