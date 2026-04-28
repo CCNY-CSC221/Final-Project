@@ -13,6 +13,13 @@ public class InsightsOutput {
 	 */
 	public void displayToConsole(Map<String, Double> results) {
 		// Logic to be added for Alpha build
+		if (Objects.isNull(results) || results.isEmpty()) {
+        System.out.println("No data available to display.");
+        return;
+        }
+        results.forEach((category, value) -> {
+			System.out.printf("Category: %-15s | Recommended Action: $%.2f%n", category, value);
+		});
 	}
 
 	/**
