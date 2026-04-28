@@ -1,0 +1,44 @@
+Date,Category,Amount
+# ANOMALY: $100k Compensation - extremely high income (typical is ~$10k); suspiciously large single deposit
+01/15/2024,Compensation,100000
+# ANOMALY: Monthly Tuition - education expenses appear every month; tuition should only occur twice/year (semester-based)
+01/20/2024,Education,-3000
+02/20/2024,Education,-3000
+03/20/2024,Education,-3000
+04/20/2024,Education,-3000
+05/20/2024,Education,-3000
+06/20/2024,Education,-3000
+07/20/2024,Education,-3000
+08/20/2024,Education,-3000
+09/20/2024,Education,-3000
+10/20/2024,Education,-3000
+11/20/2024,Education,-3000
+12/20/2024,Education,-3000
+# ANOMALY: $0 income entry - a zero-amount transaction is valid format but meaningless/suspicious as an income record
+06/01/2024,Allowance,0
+# ANOMALY: $0 expense entry - same as above but for an expense; no financial effect, likely erroneous
+06/15/2024,Food,0
+# ANOMALY: Extremely high single Food expense ($5000) - far outside normal grocery/dining range
+03/05/2024,Food,-5000
+# ANOMALY: Extremely high Entertainment expense ($8000) - suspiciously large for a single entertainment purchase
+07/04/2024,Entertainment,-8000
+# ANOMALY: Duplicate entry - identical date, category, and amount appearing twice; likely double-posted transaction
+09/10/2024,Transportation,-200
+09/10/2024,Transportation,-200
+# ANOMALY: Very high Professional Services charge ($15000) - unusually large one-time fee
+05/22/2024,Professional Services,-15000
+# ANOMALY: Negative Compensation - income category used with a negative value; income should never be negative
+08/01/2024,Compensation,-500
+# ANOMALY: Positive expense category - expense category used with a positive amount; expenses should never be positive
+10/03/2024,Utilities,300
+# ANOMALY: Extremely high Appearance expense ($20000) - far beyond typical personal care/clothing spend
+11/11/2024,Appearance,-20000
+# ANOMALY: Very frequent Other income entries every week - unusually high frequency of unclassified income, may indicate income structuring
+01/07/2024,Other,999
+01/14/2024,Other,999
+01/21/2024,Other,999
+01/28/2024,Other,999
+# ANOMALY: Extremely large Home expense ($50000) - could suggest an unusual purchase or data entry error
+04/30/2024,Home,-50000
+# ANOMALY: Investments income that is extremely high ($200000) - far outside typical individual investment returns
+12/31/2024,Investments,200000
