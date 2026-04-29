@@ -5,6 +5,7 @@ import java.util.*;
  * to provide the user with spending patterns, surpluses, and deficit warnings.
  */
 public class Insights {
+	
 	private List<String> excludedCategories = new ArrayList<>();
 	private static final List<String> VALID_CATEGORIES = Arrays.asList(
 			"Compensation", "Allowance", "Investments", "Other", 
