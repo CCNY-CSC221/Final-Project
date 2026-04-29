@@ -62,7 +62,24 @@ public class Insights {
 	 * @param ledger The financial data to be analyzed.
 	 */
 	public Map<String, Double> calculatePercentageBreakdown(Object ledger) {
-		return null;
+		Map<String, Double> percentages = new HashMap<>();
+		Map<String, Float> categoryTotals = ledger.getCategoryTotals();
+		
+		double totalExpenses = 0;
+		
+		for (Map.Entry<String, Float> entry : categoryTotals.entrySet()) {
+			String category = entry.getKey();
+			float totalAmount = entry.getValue();
+			
+			if (totalAmount < 0 && !this.excludedCategories.contains(category)) {
+				totalExpenses += Math.abs((double) totalAmount);
+			}
+		}
+		
+		if (totalExpenses == 0) {
+			return percentages;
+		}
+		
 	}
 
 	/**
