@@ -79,17 +79,6 @@ public class FrontendConnector {
     }
 
     /**
-     * Prompts for and reads text input.
-     *
-     * @param prompt the prompt to show before reading input
-     * @return the trimmed user input
-     */
-    public String readTextInput(String prompt) {
-        System.out.print(prompt);
-        return scanner.nextLine().trim();
-    }
-
-    /**
      * Checks if user input is numeric.
      *
      * @param input the user input
