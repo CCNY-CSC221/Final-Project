@@ -5,6 +5,10 @@ import java.util.*;
  * to provide the user with spending patterns, surpluses, and deficit warnings.
  */
 public class Insights {
+	private List<String> excludedCategories = new ArrayList<>();
+	private static final List<String> VALID_CATEGORIES = Arrays.asList(
+			"Compensation", "Allowance", "Investments", "Other", 
+			"Home", "Utilities", "Food", "Appearance", "Work", "Education", "Transportation", "Entertainment", "Professional Services");
 	/**
 	 * * Calculates required spending cuts for specific categories.
 	 * 
@@ -67,6 +71,35 @@ public class Insights {
 	 * @param categories List of category names to skip.
 	 */
 	public void setExcludedCategories(List<String> categories) {
+		if (categories == null) {
+			return;
+		}
+		
+		excludedCategories.clear();
+		
+		for (String category : categories) {
+			if (isValidCategory(category)) {
+				excludedCategories.add(category);
+			}
+			else {
+				System.err.println(category + " is not a valid category to exclude");
+			}
+		}
+	}
+
+	/**
+	 * * Helper method to see if a category is valid.
+	 * 
+	 * @author Wilson
+	 * @param category
+	 */
+	private boolean isValidCategory(String category) {
+		for (String valid: VALID_CATEGORIES) {
+			if (category.equalsIgnoreCase(valid)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
