@@ -1,9 +1,14 @@
 package DataAudit;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;   
 
 /**
  * Reviews budget records for duplicate entries, malformed data, and anomalous
@@ -12,15 +17,18 @@ import java.util.Set;
  * @author Raphy Binet Cedeno, Thierno Diallo
  */
 public class AuditData {
+    private final Function<String, T> parser;
 
     private static final double ANOMALY_THRESHOLD = 0.50;
 
     /**
-     * Creates an AuditData object for duplicate and anomaly checks.
+     * Constructs an auditor with a parser to convert CSV lines into type T.
      *
      * @author Raphy Binet Cedeno, Thierno Diallo
+     * @param parser function to parse a CSV line into T
      */
-    public AuditData() {
+    public AuditData(Function<String, T> parser) {
+        this.parser = parser;
     }
 
     /**
