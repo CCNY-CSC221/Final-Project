@@ -1,55 +1,30 @@
 import java.util.Map;
+import java.util.HashMap;
 
 /**
  * Stores user financial data and yearly ledgers.
  */
 public class UserStorage implements Comparable<UserStorage> {
+    private String userName;
+    private Map<Integer, TransactionLedger> yearLedgers;
+    
+    public UserStorage(String userName) {
+        this userName = userName;
+        this yearLedgers = new HashMap<>();
+    }
+    
+    public String getUserName() {return userName;}
 
-    /**
-     * Creates user storage.
-     *
-     * @param userName username
-     */
-    public UserStorage(String userName) {}
+    public Map<Integer, TransactionLedger> getYearlyLedgers() { return yearLedgers;}
 
-    /** @return username */
-    public String getUserName() {}
+    public TransactionLedger getLedgerByYear(int year) {return yearLedgers.get(year);}
 
-    /** @return yearly ledgers */
-    public Map<Integer, TransactionLedger> getYearlyLedgers() {}
+    public boolean hasLedgerForYear(int year) {return yearLedgers.containsKeys(year);}}
 
-    /**
-     * @param year year
-     * @return ledger for year or null
-     */
-    public TransactionLedger getLedgerByYear(int year) {}
+    public void addLedger(TransactionLedger ledger) {return yearLedgers.put(ledger.getYear(), ledger);}}
 
-    /**
-     * @param year year
-     * @return true if ledger exists
-     */
-    public boolean hasLedgerForYear(int year) {}
+    public void delLedger(int year) { yearLedgers.remove(year);}}
 
-    /**
-     * Adds or replaces a ledger.
-     *
-     * @param ledger ledger to add
-     */
-    public void addLedger(TransactionLedger ledger) {}
-
-    /**
-     * Removes ledger for a year.
-     *
-     * @param year year
-     */
-    public void delLedger(int year) {}
-
-    /**
-     * Compares users by name.
-     *
-     * @param other other user
-     * @return comparison result
-     */
     @Override
-    public int compareTo(UserStorage other) {}
+    public int compareTo(UserStorage other) {return this.userName.compareTo(other.userName);}
 }
