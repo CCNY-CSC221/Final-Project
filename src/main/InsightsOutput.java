@@ -37,7 +37,7 @@ public class InsightsOutput {
      */
     public void exportToCSV(Map<String, Double> reportData, String fileName) {
         try (FileWriter writer = new FileWriter(fileName)) {
-            // Requirement: First line must contain the header [cite: 62]
+            // Requirement: First line must contain the header
             writer.append("Category,Amount\n");
 
             for (Map.Entry<String, Double> entry : reportData.entrySet()) {
