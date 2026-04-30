@@ -82,7 +82,23 @@ public class Accounts {
          * @return true if authentication is successful, false otherwise
          */
         public boolean signIn(String username, String password) {
-            return true; // Implementation WIP
+            for (Account account : accounts) {
+                if (account.getUsername().equals(username) &&
+                    account.getPassword().equals(password)) {
+
+                    // If already signed in, return false
+                    if (account.isSignedIn()) {
+                        return false;
+                    }
+
+                    // sign in
+                    account.setSignedIn(true);
+                    return true;
+                }
+            }
+
+            // Username/password not found
+            return false;
         }
 
         /**
@@ -91,7 +107,22 @@ public class Accounts {
          * @return true if sign out is successful, false otherwise
          */
         public boolean signOut(String username) {
-            return true; // Implementation WIP
+            for (Account account : accounts) {
+                if (account.getUsername().equals(username)) {
+
+                    // If not signed in, return false
+                    if (!account.isSignedIn()) {
+                        return false;
+                    }
+
+                    // sign out
+                    account.setSignedIn(false);
+                    return true;
+                }
+            }
+
+            // Username not found
+            return false;
         }
 
         /**
