@@ -51,7 +51,7 @@ public class FileFolderManager {
         File folder = new File(path);
         String[] Contents = folder.list();
         
-        String[] folders = new String(Contents.length())
+        String[] folders = new String(Contents.length());
         int i = 0;
         for (File f : Contents) {
             if (f.isDirectory()) {
