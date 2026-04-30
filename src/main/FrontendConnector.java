@@ -115,4 +115,8 @@ public class FrontendConnector {
             return false;
         }
     }
+
+    public String readTextInput() {
+        return scanner.nextline().trim();
+    }
 }
