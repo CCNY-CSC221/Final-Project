@@ -1,5 +1,7 @@
 import java.io.IOException;
-
+import java.io.File;
+import java.io.file.Files;
+import java.io.file.Paths;
 /**
  * Handles file/folder operations.
  */
@@ -12,79 +14,50 @@ public class FileFolderManager {
      * @throws IOException if file exist or path not valid
      */
     public static void createFile(String path) throws IOException {}
+        File file = new file(path);
+        file.createNewFile();
     
-    /**
-     * Deletes a file.
-     *
-     * @param path file path
-     * @throws IOException if file does not exist
-     */
     public static void deleteFile(String path) throws IOException{}
-
-    /**
-     * Checks if file exists.
-     *
-     * @param path file path
-     * @return true if exists
-     */
-    public static boolean isFileExists(String path) throws IOException{}
-
-    /**
-     * Lists files in folder.
-     *
-     * @param path folder path
-     * @return array of file names
-     */
-    public static String[] listFilesInFolder(String path) throws IOException{}
+        File file = new file(path);
+        file.delete();
     
-    /**
-     
-     * Reads file content.
-     *
-     * @param path file path
-     * @return file content
-     * @throws IOException if file not exist
-     */
+    public static boolean isFileExists(String path) throws IOException{}
+        File file = new File();
+        return file.exists() && file.isFile();
+    
+    public static String[] listFilesInFolder(String path) throws IOException{}
+        File folder = new File(path);
+        String[] Contents = folder.list();
+        return Contents;
+
     public static String readFile(String path) throws IOException{}
+        return String(Files.readallBytes(Paths.get(path)));l
 
-    /**
-     * Writes content to file.
-     *
-     * @param path file path
-     * @param content text content
-     * @throws IOException if file does not exist
-     */
     public static void writeFile(String path, String content) throws IOException{}
-
-    /**
-     * Creates a folder.
-     *
-     * @param path folder path
-     * @throws IOException if folder exist or path not valid
-     */
+        Files.write(Paths.get(path), content.getBytes())
+            
     public static void createFolder(String path) throws IOException{}
+        File folder = new File(path);
+        folder.mldir();
 
-    /**
-     * Checks if folder exists.
-     *
-     * @param path folder path
-     * @return true if exists
-     */
     public static boolean isFolderExists(String path) {}
+        File folder = new File(path);
+        return file.exists() && file.isDirectory();
 
-    /**
-     * Lists folders in folder.
-     *
-     * @param path folder path
-     * @return array of folder names
-     */
     public static String[] listFoldersInFolder(String path) {}
-     
-    /**
-     * Deletes a folder.
-     *
-     * @param path folder path
-     * @throws IOException if folder does not exist
-     */
+        File folder = new File(path);
+        String[] Contents = folder.list();
+        
+        String[] folders = new String(Contents.length())
+        int i = 0
+        for (File f : Contents) {
+            if (f.isDirectory()) {
+                folders[i++] = f.getname();
+            }    
+        }   
+
     public static void deleteFolder(String path) throws IOException{}
+        File file = new file(path);
+        file.delete();
+
 }
