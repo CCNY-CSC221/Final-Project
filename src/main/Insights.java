@@ -61,25 +61,40 @@ public class Insights {
 	 * @author Wilson
 	 * @param ledger The financial data to be analyzed.
 	 */
-	public Map<String, Double> calculatePercentageBreakdown(Object ledger) {
-		Map<String, Double> percentages = new HashMap<>();
+	public Map<String, Float> calculatePercentageBreakdown(TransactionLedger ledger) {
+		Map<String, Float> percentages = new HashMap<>();
 		Map<String, Float> categoryTotals = ledger.getCategoryTotals();
 		
-		double totalExpenses = 0;
+		float totalExpenses = 0.0f;
 		
+		// Find total expenses of non excluded categories.
 		for (Map.Entry<String, Float> entry : categoryTotals.entrySet()) {
 			String category = entry.getKey();
 			float totalAmount = entry.getValue();
 			
 			if (totalAmount < 0 && !this.excludedCategories.contains(category)) {
-				totalExpenses += Math.abs((double) totalAmount);
+				totalExpenses += Math.abs(totalAmount);
 			}
 		}
 		
-		if (totalExpenses == 0) {
+		// Prevent dividing by 0.
+		if (totalExpenses == 0.0f) {
 			return percentages;
 		}
 		
+		// Calculate percentage for each valid category
+		for (Map.Entry<String, Float> entry : categoryTotals.entrySet()) {
+			String category = entry.getKey();
+			float totalAmount = entry.getValue();
+			
+			if (totalAmount < 0 && !this.excludedCategories.contains(category)) {
+				float categoryTotal = Math.abs(totalAmount);
+				float percentage = (categoryTotal / totalExpenses) * 100f;
+				percentages.put(category, percentage);
+			}
+		}
+		
+		return percentages;
 	}
 
 	/**
@@ -89,6 +104,7 @@ public class Insights {
 	 * @param categories List of category names to skip.
 	 */
 	public void setExcludedCategories(List<String> categories) {
+		DataValidator validator = new DataValidator();
 		if (categories == null) {
 			return;
 		}
@@ -96,29 +112,15 @@ public class Insights {
 		excludedCategories.clear();
 		
 		for (String category : categories) {
-			if (isValidCategory(category)) {
+			if (validator.isValidCategory(category)) {
 				excludedCategories.add(category);
 			}
 			else {
-				System.err.println(category + " is not a valid category to exclude");
+				System.out.println(category + " is not a valid category to exclude");
 			}
 		}
 	}
 
-	/**
-	 * * Helper method to see if a category is valid.
-	 * 
-	 * @author Wilson
-	 * @param category
-	 */
-	private boolean isValidCategory(String category) {
-		for (String valid: VALID_CATEGORIES) {
-			if (category.equalsIgnoreCase(valid)) {
-				return true;
-			}
-		}
-		return false;
-	}
 
 	/**
 	 * * Finds extra money and suggests where to spend it.
