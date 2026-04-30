@@ -68,7 +68,7 @@ public class StoreAudit {
                 );
 
         try {
-            FileWriteDispatcher.getInstance().writeAll(path, lines);
+            Files.write(path, lines);
             return true;
         } catch (Exception e) {
             System.err.println("Error saving audit report: " + e.getMessage());
