@@ -52,7 +52,7 @@ public class FileFolderManager {
         String[] Contents = folder.list();
         
         String[] folders = new String(Contents.length())
-        int i = 0
+        int i = 0;
         for (File f : Contents) {
             if (f.isDirectory()) {
                 folders[i++] = f.getname();
