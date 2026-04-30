@@ -1,88 +1,53 @@
 import java.time.LocalDate;
-
+import java.time.format.DateTimeFormatter;
+import java.util.Objects
 /**
  * Represents a single financial transaction.
  */
 public class Transaction implements Comparable<Transaction> {
+    private LocalDate date;
+    private String category;
+    private float amount;
+    private String type;
+    static final DateTimeFormat DATE_FORMAT = DataTimeFormatter.ofPattern("MM/DD/YYYY")
 
-    /**
-     * Creates a transaction object.
-     *
-     * @param date transaction date
-     * @param category transaction category
-     * @param description transaction description
-     * @param amount transaction amount
-     * @param type transaction type ("income" or "expense")
-     * @throws IllegalArgumentException if any value is invalid
-     */
-    public Transaction(LocalDate date, String category, String description, float amount, String type) {}
-
-    /**
-     * Parses a CSV row into a Transaction object.
-     *
-     * @param text CSV formatted transaction string
-     * @return Transaction object
-     */
-    public static Transaction createFromCSVText(String text) {}
-
-    /**
-     * Converts this transaction to CSV format.
-     *
-     * @return CSV string
-     */
-    public String transformToCSVText() {}
-
-    /** @return transaction date */
-    public LocalDate getDate() {}
-
-    /**
-     * @param date new date
-     * @throws IllegalArgumentException if date is null
-     */
-    public void setDate(LocalDate date) {}
-
-    /** @return category */
-    public String getCategory() {}
-
-    /**
-     * @param category new category
-     * @throws IllegalArgumentException if null or empty
-     */
-    public void setCategory(String category) {}
-
-    /** @return description */
-    public String getDescription() {}
-
-    /**
-     * @param description new description
-     * @throws IllegalArgumentException if null or empty
-     */
-    public void setDescription(String description) {}
-
-    /** @return amount */
-    public float getAmount() {}
-
-    /**
-     * @param amount new amount
-     * @throws IllegalArgumentException if negative
-     */
-    public void setAmount(float amount) {}
-
-    /** @return type */
-    public String getType() {}
-
-    /**
-     * @param type transaction type ("income" or "expense")
-     * @throws IllegalArgumentException if invalid type
-     */
-    public void setType(String type) {}
-
-    /**
-     * Compares transactions by date.
-     *
-     * @param other another transaction
-     * @return comparison result
-     */
+    public Transaction(LocalDate date, String category, float amount, String type) {}
+        this data = date;
+        this category = category;
+        this amount = amount;
+        this type = type;
+        
+    public static Transaction createFromCSVText(String text) {
+        String parts[] = text.split(",");
+        LocalData data = LocalDate.parse(parts[0].trim(),DATE_FORMAT);
+        String.category = parts[1].trim;
+        float amount = Float.parseFloat.parts[2].trim;
+        String type = amount <= 0 ? "income" : "expense";
+        return new Transaction(date, category, Math.abs(amount), String type);
+    }
+    public String transformToCSVText() {
+        float signedAmount = type.equals("expense") ? -amount : amount;
+        return data.format(DATA_format) + "," + category + "," + signedAmount;
+    }
+    public LocalDate getDate() { return data;}
+    public void setDate(LocalDate date) { this data = date;}
+    public String getCategory() { return category;}
+    public void setCategory(String category) {this category = category;}
+    public float getAmount() { return amount;}
+    public void setAmount(float amount) {this amount = amount;}
+    public String getType() { return type;}
+    public void setType(String type) {this type = type;}
     @Override
-    public int compareTo(Transaction other) {}
+    public int compareTo(Transaction other) {return this.data.compareTo(other.data;)}
+
+    @Override
+    public int hashCode() { return Objects.hash(data, category,amount, type);}
+
+    @Override
+    public boolean equals(Object o) {
+        if(this == o) return true;
+        if(!(o instanceof Transcation)) return false;
+        Transsaction t = (Transaction) o;
+        return Float.compare(amount, t.amount) == 0 && Objects.equal(date, t.date) && Objects.equal(category,t.category) && Objects.equal(type, t.type);
+    }   
 }
