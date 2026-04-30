@@ -1,4 +1,3 @@
-package Reports;
 //TODO add imports when Storage config is done
 /**
  * Controller responsible for coordinating report generation and output delivery.
