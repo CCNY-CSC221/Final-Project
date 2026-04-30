@@ -55,10 +55,6 @@ public class StoreAudit {
         String fileName = String.format("%s/%s_%d_audit.txt", BASE_DIR, username, year);
         Path path = Paths.get(fileName);
 
-        // Write header and content
-        String fileName = String.format("%s/%s_%d_audit.txt", BASE_DIR, username, year);
-        Path path = Paths.get(fileName);
-
         List<String> lines = List.of(
                 "Audit Report - " + LocalDateTime.now(),
                 "User: " + username,
