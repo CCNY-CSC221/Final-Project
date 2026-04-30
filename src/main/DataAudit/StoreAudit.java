@@ -18,14 +18,17 @@ public class StoreAudit {
 
     /**
      * Initializes the audit directory if it doesn't exist. 
-     * It checks for the existance of {@value #BASE_DIR}. If absent, it will create a new directory
+     * Uses {@link Files#createDirectories(Path)} to create {@link Files#createDirectories(Path)} as well
+     * as the nevessary parent directories. 
      * using {@link java.io.File#mkdirs()}.
      *
      * @author Thierno Diallo & Zeferino Franco Salgado
      */
     public StoreAudit() {
-        if (!Files.exists(Paths.get(BASE_DIR))) {
-            new java.io.File(BASE_DIR).mkdirs();
+        try {
+            Files.createDirectories(Paths.get(BASE_DIR));
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to create audit directory: " + e.getMessage(), e);
         }
     }
 
@@ -39,7 +42,14 @@ public class StoreAudit {
      * @author Thierno Diallo
      */
     public boolean saveAudit(String username, int year, String report) {
-        return false; // Implementation WIP
+        if (username == null || username.trim().isEmpty() || report == null) {
+            return false;
+        }
+        if (year < 1900 || year > 2100) {
+            return false;
+        }
+
+
     }
 
     /**
