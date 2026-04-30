@@ -49,7 +49,28 @@ public class StoreAudit {
             return false;
         }
 
+        String fileName = String.format("%s/%s_%d_audit.txt", BASE_DIR, username, year);
+        Path path = Paths.get(fileName);
 
+        // Write header and content
+        String fileName = String.format("%s/%s_%d_audit.txt", BASE_DIR, username, year);
+        Path path = Paths.get(fileName);
+
+        List<String> lines = List.of(
+                "Audit Report - " + LocalDateTime.now(),
+                "User: " + username,
+                "Year: " + year,
+                "Report:",
+                report
+                );
+
+        try {
+            FileWriteDispatcher.getInstance().writeAll(path, lines);
+            return true;
+        } catch (Exception e) {
+            System.err.println("Error saving audit report: " + e.getMessage());
+            return false;
+        }
     }
 
     /**
@@ -61,6 +82,81 @@ public class StoreAudit {
      * @author Thierno Diallo
      */
     public boolean purgeRecords(String username, String timeframe) {
-        return false; // Implementation WIP
+        if (username == null || username.trim().isEmpty() || timeframe == null) {
+            return false;
+        }
+
+        File dir = new File(BASE_DIR);
+        if (!dir.exists() || !dir.isDirectory()) {
+            return false;
+        }
+
+        boolean deletedAny = false;
+
+        // Define pattern based on filename convention
+        String regex = Pattern.quote(username) + ".*_" + Pattern.quote(timeframe) + ".*\\.txt";
+        Pattern pattern = Pattern.compile(regex);
+
+        File[] files = dir.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (pattern.matcher(file.getName()).matches()) {
+                    try {
+                        Files.deleteIfExists(file.toPath());
+                        deletedAny = true;
+                    } catch (IOException e) {
+                        System.err.println("Failed to delete file: " + file.getName() + " - " + e.getMessage());
+                    }
+                }
+            }
+        }
+
+        return deletedAny;
+    }
+
+    /**
+     * Purges audit records for a user within a requested time frame.
+     *
+     * This method deletes files matching the pattern {@code username_*_timeframe*.txt}
+     * in the configured base directory. It returns {@code true} if at least one file was
+     * successfully deleted, {@code false} otherwise. No exception is thrown for deletion failures.
+     *
+     * @param username the username whose audit records should be purged; must not be null or blank
+     * @param timeframe the time frame or retention rule for the purge request; must not be null
+     * @return {@code true} if at least one file was successfully deleted; {@code false}
+     * if no matching files were found, deletion failed, or input validation failed.
+     *
+     * @author Thierno Diallo & Zeferino Franco Salgado
+     */
+    public boolean purgeRecords(String username, String timeframe) {
+        if (username == null || username.trim().isEmpty() || timeframe == null) {
+            return false;
+        }
+
+        File dir = new File(BASE_DIR);
+        if (!dir.exists() || !dir.isDirectory()) {
+            return false;
+        }
+
+        boolean deletedAny = false;
+
+        String regex = Pattern.quote(username) + ".*_" + Pattern.quote(timeframe) + ".*\\.txt";
+        Pattern pattern = Pattern.compile(regex);
+
+        File[] files = dir.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (pattern.matcher(file.getName()).matches()) {
+                    try {
+                        Files.deleteIfExists(file.toPath());
+                        deletedAny = true;
+                    } catch (IOException e) {
+                        System.err.println("Failed to delete file: " + file.getName() + " - " + e.getMessage());
+                    }
+                }
+            }
+        }
+
+        return deletedAny;
     }
 }
