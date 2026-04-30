@@ -7,6 +7,7 @@
 public class IntegrationManager {
     
     private final FrontendConnector frontendConnector;
+    private final FileChecker fileChecker:
 
     /**
      * Creates an IntegrationManager object.
@@ -15,6 +16,7 @@ public class IntegrationManager {
      */
     public IntegrationManager() {
         frontendConnector = new FrontendConnector();
+        fileChecker = new FileChecker();
     }
 
     /**
@@ -36,7 +38,7 @@ public class IntegrationManager {
      * @author Dmytro Shumlianskyi
      */
     public void startApplication() {
-        if(!initializeSystem()) {
+        if (!initializeSystem()) {
             System.err.println("System startup failed.");
             return;
         }
@@ -44,7 +46,7 @@ public class IntegrationManager {
         boolean running = true;
         boolean authenticated = false;
 
-        while(running && !authenticated) {
+        while (running && !authenticated) {
             int option = frontendConnector.showAuthenticationMenu();
             
             switch (option) {
@@ -82,12 +84,12 @@ public class IntegrationManager {
         while(running && authenticated) {
             int option = frontendConnector.showMainMenu();
             
-            switch (option) {
+            switch (option) {           
                 case 1:
                     // TODO:
                     // Later this should call Validation first.
                     // If validation succeeds, call Storage to save the CSV data.
-                    System.out.println("Load CSV selected.");
+                    handleLoadYearlyCSV();
                     break;
 
                 case 2:
@@ -129,7 +131,28 @@ public class IntegrationManager {
             }
         }
     }
+    /**
+     * Handles the Load Yearly CSV menu option.
+     *
+     * @author Khattab Sulaiman
+     */
+    private void handleLoadYearlyCSV() {
+        try {
+            System.out.print("Enter yearly CSV file path: ");
+            String filePath = frontendConnector.readTextInput();
 
+            boolean filePassed = fileChecker.startFileCheck(filePath);
+
+            if (filePassed) {
+                System.out.println("CSV file passed validation and is ready to load.");
+            } else {
+                System.out.println("CSV file failed validation. Please check the file and try again.");
+            }
+
+        } catch (Exception exception) {
+            System.out.println(handleException(exception));
+        }
+    }
     /**
      * Handles the account settings menu flow.
      *
