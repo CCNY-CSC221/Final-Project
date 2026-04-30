@@ -76,47 +76,6 @@ public class StoreAudit {
     /**
      * Purges audit records for a user within a requested time frame.
      *
-     * @param username the username whose audit records should be purged
-     * @param timeframe the time frame or retention rule for the purge request
-     * @return true if the purge request is valid; false otherwise
-     * @author Thierno Diallo
-     */
-    public boolean purgeRecords(String username, String timeframe) {
-        if (username == null || username.trim().isEmpty() || timeframe == null) {
-            return false;
-        }
-
-        File dir = new File(BASE_DIR);
-        if (!dir.exists() || !dir.isDirectory()) {
-            return false;
-        }
-
-        boolean deletedAny = false;
-
-        // Define pattern based on filename convention
-        String regex = Pattern.quote(username) + ".*_" + Pattern.quote(timeframe) + ".*\\.txt";
-        Pattern pattern = Pattern.compile(regex);
-
-        File[] files = dir.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (pattern.matcher(file.getName()).matches()) {
-                    try {
-                        Files.deleteIfExists(file.toPath());
-                        deletedAny = true;
-                    } catch (IOException e) {
-                        System.err.println("Failed to delete file: " + file.getName() + " - " + e.getMessage());
-                    }
-                }
-            }
-        }
-
-        return deletedAny;
-    }
-
-    /**
-     * Purges audit records for a user within a requested time frame.
-     *
      * This method deletes files matching the pattern {@code username_*_timeframe*.txt}
      * in the configured base directory. It returns {@code true} if at least one file was
      * successfully deleted, {@code false} otherwise. No exception is thrown for deletion failures.
