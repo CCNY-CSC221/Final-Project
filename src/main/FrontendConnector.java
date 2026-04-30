@@ -28,8 +28,25 @@ public class FrontendConnector {
         System.out.println("\n===== Authentication Menu =====");
         System.out.println("1. Login");
         System.out.println("2. Create Account");
-        System.out.println("3. Reset Password");
+        System.out.println("3. Forgot Password");
         System.out.println("4. Exit");
+        System.out.print("Choose an option: ");
+
+        return readMenuOption(1, 4);
+    }
+
+    /**
+     * Shows the account settings menu and reads the user's choice.
+     *
+     * @return the selected menu option, or -1 if the input is invalid
+     * @author Dmytro Shumlianskyi
+     */
+    public int showAccountSettingsMenu() {
+        System.out.println("\n===== Account Settings =====");
+        System.out.println("1. Change Password");
+        System.out.println("2. Update Secret Question");
+        System.out.println("3. Delete Account");
+        System.out.println("4. Back to Main Menu");
         System.out.print("Choose an option: ");
 
         return readMenuOption(1, 4);
@@ -48,10 +65,11 @@ public class FrontendConnector {
         System.out.println("3. Run Insights");
         System.out.println("4. Run Data Audit");
         System.out.println("5. Delete Year Data");
-        System.out.println("6. Exit");
+        System.out.println("6. Account Settings");
+        System.out.println("7. Exit");
         System.out.print("Choose an option: ");
 
-        return readMenuOption(1, 6);
+        return readMenuOption(1, 7);
     }
 
     /**

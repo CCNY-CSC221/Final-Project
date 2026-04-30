@@ -115,8 +115,54 @@ public class IntegrationManager {
                     break;
 
                 case 6: 
+                    handleAccountSettingsMenu();
+                    break;
+
+                case 7: 
                     running = false;
                     System.out.println("Program closed.");
+                    break;
+
+                default:
+                    System.out.println("Invalid option. Try again.");
+                    break;
+            }
+        }
+    }
+
+    /**
+     * Handles the account settings menu flow.
+     *
+     * @author Dmytro Shumlianskyi
+     */
+    private void handleAccountSettingsMenu() {
+        boolean inAccountSettings = true;
+
+        while (inAccountSettings) {
+            int option = frontendConnector.showAccountSettingsMenu();
+
+            switch (option) {
+                case 1:
+                    // TODO:
+                    // Later this should call Accounts.changePassword().
+                    System.out.println("Change password selected.");
+                    break;
+
+                case 2:
+                    // TODO:
+                    // Later this should call Accounts.updateAccount().
+                    System.out.println("Update secret question selected.");
+                    break;
+
+                case 3:
+                    // TODO:
+                    // Later this should call Accounts.deleteAccount().
+                    System.out.println("Delete account selected.");
+                    break;
+
+                case 4:
+                    inAccountSettings = false;
+                    System.out.println("Returning to main menu.");
                     break;
 
                 default:
