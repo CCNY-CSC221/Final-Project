@@ -178,5 +178,31 @@ public class Accounts {
             }
             return secretAnswer.equals(account.secretAnswer);
         }
+        /**
+        * Helper method: getter for username
+        */
+        public String getUsername() {
+                return username;
+            }
 
+        /**
+        * Helper method: getter for password
+        */
+        public String getPassword() {
+                return password;
+            }
+
+        /**
+        * Helper method: checks if signed in
+        */
+        public boolean isSignedIn() {
+                return signedIn;
+            }
+
+        /**
+        * Helper method: set signed in status
+        */
+        public void setSignedIn(boolean signedIn) {
+                this.signedIn = signedIn;
+            }
 }
