@@ -1,5 +1,12 @@
 package DataAudit;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 /**
  * Handles saving and purging audit reports or audit history records.
  *
@@ -7,18 +14,25 @@ package DataAudit;
  */
 public class StoreAudit {
 
+    private static final String BASE_DIR = "audit_reports";
+
     /**
-     * Creates a StoreAudit object for audit storage operations.
+     * Initializes the audit directory if it doesn't exist. 
+     * It checks for the existance of {@value #BASE_DIR}. If absent, it will create a new directory
+     * using {@link java.io.File#mkdirs()}.
      *
-     * @author Thierno Diallo
+     * @author Thierno Diallo & Zeferino Franco Salgado
      */
     public StoreAudit() {
+        if (!Files.exists(Paths.get(BASE_DIR))) {
+            new java.io.File(BASE_DIR).mkdirs();
+        }
     }
 
     /**
      * Saves the generated audit report for a user and year.
      *
-     * @param username the username associated with the audit
+     * @paraim username the username associated with the audit
      * @param year the calendar year selected for audit
      * @param report the audit report content to save
      * @return true if the audit report input is valid for saving; false otherwise
