@@ -7,7 +7,7 @@ import java.util.Scanner;
  */
 public class FrontendConnector {
 
-    private Scanner scanner;
+    private final Scanner scanner;
 
     /**
      * Creates a FrontendConnector object and prepares console input.
@@ -65,7 +65,7 @@ public class FrontendConnector {
     public int readMenuOption(int minOption, int maxOption) {
         String input = scanner.nextLine().trim();
 
-        if(!isNumericInput(input)) {
+        if (!isNumericInput(input)) {
             return -1;
         }
 
