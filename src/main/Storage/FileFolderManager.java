@@ -22,7 +22,7 @@ public class FileFolderManager {
         file.delete();
     }
     public static boolean isFileExists(String path) throws IOException{
-        File file = new File();
+        File file = new File(path);
         return file.exists() && file.isFile();
     }
     
@@ -32,7 +32,7 @@ public class FileFolderManager {
         return Contents;
     }
     public static String readFile(String path) throws IOException{
-        return String(Files.readallBytes(Paths.get(path)));
+        return new String(Files.readAllBytes(Paths.get(path)));
     }
     
     public static void writeFile(String path, String content) throws IOException{
@@ -41,23 +41,25 @@ public class FileFolderManager {
     
     public static void createFolder(String path) throws IOException{
         File folder = new File(path);
-        folder.mldir();
+        folder.mkdir();
     }
     public static boolean isFolderExists(String path) {
         File folder = new File(path);
-        return file.exists() && file.isDirectory();
+        return folder.exists() && file.isDirectory();
     }
     public static String[] listFoldersInFolder(String path) {
         File folder = new File(path);
-        String[] Contents = folder.list();
+        String[] contents = folder.list();
         
         String[] folders = new String(Contents.length());
         int i = 0;
-        for (File f : Contents) {
+        for (String name : contents) {
+            File f = new file(path,name);
             if (f.isDirectory()) {
                 folders[i++] = f.getname();
             }    
-        }   
+        }
+        return folders; 
     }
     public static void deleteFolder(String path) throws IOException{
         File file = new file(path);
