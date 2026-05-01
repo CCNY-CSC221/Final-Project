@@ -26,7 +26,7 @@ public class AccountStorage {
         File file = new File(ACCOUNTS_DIR + filename + ".txt");
         try (PrintWriter writer = new PrintWriter(new FileWriter(file))) {
             writer.println(account.getUsername());
-            writer.println(account.getPassword());
+            writer.println(obfuscatePassword(account.getPassword()));
             writer.println(account.getSecretQuestion());
             writer.println(account.getSecretAnswer());
             return true;
