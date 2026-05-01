@@ -7,9 +7,7 @@ import java.util.*;
 public class Insights {
 	
 	private List<String> excludedCategories = new ArrayList<>();
-	private static final List<String> VALID_CATEGORIES = Arrays.asList(
-			"Compensation", "Allowance", "Investments", "Other", 
-			"Home", "Utilities", "Food", "Appearance", "Work", "Education", "Transportation", "Entertainment", "Professional Services");
+	
 	/**
 	 * * Calculates required spending cuts for specific categories.
 	 * 
