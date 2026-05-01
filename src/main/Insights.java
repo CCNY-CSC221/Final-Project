@@ -7,9 +7,13 @@ import java.util.*;
 public class Insights {
 
 	private List<String> excludedCategories = new ArrayList<>();
+<<<<<<< HEAD
 	// Removed the private static final List<String> VALID_CATEGORIES - No longer
 	// needed
 
+=======
+	
+>>>>>>> branch 'main' of https://github.com/CCNY-CSC221/Final-Project
 	/**
 	 * * Calculates required spending cuts for specific categories.
 	 * 
