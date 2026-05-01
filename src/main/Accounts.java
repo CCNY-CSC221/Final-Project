@@ -21,6 +21,7 @@ public class Accounts {
      * Default constructor
      */
     public Accounts() {
+        loadExistingAccounts();
     }
 
     /**
@@ -306,6 +307,52 @@ public class Accounts {
         return secretAnswer.equals(account.getSecretAnswer());
     }
 
+/**
+ * Loads all existing accounts from the accounts folder
+ * into the static accounts ArrayList.
+ *
+ *@author Jin Chao Chen
+ */
+private void loadExistingAccounts() {
+    File folder = new File("accounts/");
+
+    // If folder doesn't exist, nothing to load
+    if (!folder.exists() || !folder.isDirectory()) {
+        return;
+    }
+
+    AccountStorage storage = new AccountStorage();
+    File[] files = folder.listFiles();
+
+    if (files == null) {
+        return;
+    }
+
+    for (File file : files) {
+        // Only process .txt account files
+        if (file.isFile() && file.getName().endsWith(".txt")) {
+            String filename = file.getName().replace(".txt", "");
+
+            Accounts loadedAccount = storage.loadAccountFromFile(filename);
+
+            if (loadedAccount != null) {
+                // Prevent duplicates if constructor runs multiple times
+                boolean exists = false;
+
+                for (Accounts account : accounts) {
+                    if (account.getUsername().equals(loadedAccount.getUsername())) {
+                        exists = true;
+                        break;
+                    }
+                }
+
+                if (!exists) {
+                    accounts.add(loadedAccount);
+                }
+            }
+        }
+    }
+}
     // Getters
 
     public String getUsername() { return username; }
