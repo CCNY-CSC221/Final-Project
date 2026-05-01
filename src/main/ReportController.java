@@ -58,7 +58,7 @@ public class ReportController {
 			case "category":
 				reportService.generateCategoryReport(userId, year);
 				break;
-			case "monthly";
+			case "monthly":
 				reportService.generateMonthlySummary(userId, year);
 				break;
 			default:
