@@ -7,7 +7,7 @@
 public class IntegrationManager {
     
     private final FrontendConnector frontendConnector;
-    private final FileChecker fileChecker:
+    private final FileChecker fileChecker;
 
     /**
      * Creates an IntegrationManager object.
@@ -52,22 +52,22 @@ public class IntegrationManager {
             switch (option) {
                 case 1:
                     // TODO:
-                    // Later this should call Accounts.signIn().
-                    // If login is successful, set authenticated = true.
+                    // Later this should get username and password from the user
+                    // and call Accounts.signIn(username, password).
                     authenticated = true;
                     System.out.println("Login successful.");
                     break;
 
                 case 2:
                     // TODO:
-                    // Later this should call Accounts.createAccount().
+                    // Later this should get account information from the user
+                    // and call Accounts.createAccount().
                     System.out.println("Create account selected.");
                     break;
                     
                 case 3:
-                    // TODO:
-                    // Later this should call Accounts.resetPasswordBySecretQuestion().
-                    System.out.println("Reset password selected.");
+                    // Opens forgot password menu.
+                    handleForgotPasswordMenu();
                     break;
 
                 case 4:
@@ -86,37 +86,32 @@ public class IntegrationManager {
             
             switch (option) {           
                 case 1:
-                    // TODO:
-                    // Later this should call Validation first.
-                    // If validation succeeds, call Storage to save the CSV data.
+                    // Load Year CSV data
                     handleLoadYearlyCSV();
                     break;
 
                 case 2:
-                    // TODO:
-                    // Later this should call the Reports module.
-                    System.out.println("Generate report selected.");
+                    // Opens year data menu
+                    handleYearDataMenu();
                     break;
 
                 case 3:
-                    // TODO:
-                    // Later this should call the Insights module.
-                    System.out.println("Run insights selected.");
+                    // Opens report menu
+                    handleReportMenu();
                     break;
 
                 case 4:
-                    // TODO:
-                    // Later this should call the Data Audit module.
-                    System.out.println("Run data audit selected.");
+                    // Opens insights menu
+                    handleInsightsMenu();
                     break;
 
                 case 5:
-                    // TODO:
-                    // Later this should call Storage to delete selected year data.
-                    System.out.println("Delete year data selected.");
+                    // Opens data audit menu
+                    handleDataAuditMenu();
                     break;
 
                 case 6: 
+                    // Opens the account settings menu
                     handleAccountSettingsMenu();
                     break;
 
@@ -131,6 +126,37 @@ public class IntegrationManager {
             }
         }
     }
+
+    /**
+     * Handles the forgot password menu flow.
+     *
+     * @author Dmytro Shumlianskyi
+     */
+    private void handleForgotPasswordMenu() {
+        boolean inForgotPasswordMenu = true;
+
+        while (inForgotPasswordMenu) {
+            int option = frontendConnector.showForgotPasswordMenu();
+
+            switch (option) {
+                case 1:
+                    // TODO: Get username, secret answer, and new password.
+                    // Later this should call Accounts.resetPasswordBySecretQuestion().
+                    System.out.println("Reset password by secret question selected.");
+                    break;
+
+                case 2:
+                    inForgotPasswordMenu = false;
+                    System.out.println("Returning to authentication menu.");
+                    break;
+
+                default:
+                    System.out.println("Invalid option. Try again.");
+                    break;
+            }
+        }
+    }
+
     /**
      * Handles the Load Yearly CSV menu option.
      *
@@ -153,6 +179,175 @@ public class IntegrationManager {
             System.out.println(handleException(exception));
         }
     }
+
+    /**
+     * Handles the Manage Year Data menu flow.
+     *
+     * @author Dmytro Shumlianskyi
+     */
+    private void handleYearDataMenu() {
+        boolean inYearDataMenu = true;
+
+        while (inYearDataMenu) {
+            int option = frontendConnector.showYearDataMenu();
+
+            switch (option) {
+                case 1:
+                    // TODO:
+                    // Later this should call Storage to show all saved years
+                    // for the current logged in user.
+                    System.out.println("View saved years selected.");
+                    break;
+
+                case 2:
+                    // TODO:
+                    // Later this should ask for the year
+                    // and call Storage to delete that year data.
+                    System.out.println("Delete year data selected.");
+                    break;
+
+                case 3:
+                    inYearDataMenu = false;
+                    System.out.println("Returning to main menu.");
+                    break;
+
+                default:
+                    System.out.println("Invalid option. Try again.");
+                    break;
+            }
+        }
+    }
+
+    /**
+     * Handles the Reports menu flow.
+     *
+     * @author Dmytro Shumlianskyi
+     */
+    private void handleReportMenu() {
+        boolean inReportMenu = true;
+
+        while (inReportMenu) {
+            int option = frontendConnector.showReportMenu();
+
+            switch (option) {
+                case 1:
+                    // TODO:
+                    // Later this should ask for the year
+                    // and call Reports.generateAnnualReport().
+                    System.out.println("Annual report selected.");
+                    break;
+
+                case 2:
+                    // TODO:
+                    // Later this should ask for the year
+                    // and call Reports.generateCategoryReport().
+                    System.out.println("Category report selected.");
+                    break;
+
+                case 3:
+                    // TODO:
+                    // Later this should ask for the year
+                    // and call Reports.generateMonthlySummary().
+                    System.out.println("Monthly summary selected.");
+                    break;
+
+                case 4:
+                    inReportMenu = false;
+                    System.out.println("Returning to main menu.");
+                    break;
+
+                default:
+                    System.out.println("Invalid option. Try again.");
+                    break;
+            }
+        }
+    }
+
+    /**
+     * Handles the Insights menu flow.
+     *
+     * @author Dmytro Shumlianskyi
+     */
+    private void handleInsightsMenu() {
+        boolean inInsightsMenu = true;
+
+        while (inInsightsMenu) {
+            int option = frontendConnector.showInsightsMenu();
+
+            switch (option) {
+                case 1:
+                    // TODO:
+                    // Later this should call Insights.calculatePercentageBreakdown().
+                    System.out.println("Spending percentage breakdown selected.");
+                    break;
+
+                case 2:
+                    // TODO:
+                    // Later this should call Insights.analyzeDeficit().
+                    System.out.println("Deficit suggestions selected.");
+                    break;
+
+                case 3:
+                    // TODO:
+                    // Later this should call InsightsOutput.exportToCSV().
+                    System.out.println("Export insights to CSV selected.");
+                    break;
+
+                case 4:
+                    inInsightsMenu = false;
+                    System.out.println("Returning to main menu.");
+                    break;
+
+                default:
+                    System.out.println("Invalid option. Try again.");
+                    break;
+            }
+        }
+    }
+
+    /**
+     * Handles the Data Audit menu flow.
+     *
+     * @author Dmytro Shumlianskyi
+     */
+    private void handleDataAuditMenu() {
+        boolean inDataAuditMenu = true;
+
+        while (inDataAuditMenu) {
+            int option = frontendConnector.showDataAuditMenu();
+
+            switch (option) {
+                case 1:
+                    // TODO:
+                    // Later this should ask for the year
+                    // and call the Data Audit module to run the audit.
+                    System.out.println("Run audit for year selected.");
+                    break;
+
+                case 2:
+                    // TODO:
+                    // Later this should call StoreAudit.saveAudit().
+                    System.out.println("Save audit report selected.");
+                    break;
+
+                case 3:
+                    // TODO:
+                    // Later this should call StoreAudit.purgeRecords().
+                    System.out.println("Delete old audit records selected.");
+                    break;
+
+                case 4:
+                    inDataAuditMenu = false;
+                    System.out.println("Returning to main menu.");
+                    break;
+
+                default:
+                    System.out.println("Invalid option. Try again.");
+                    break;
+            }
+        }
+    }
+
     /**
      * Handles the account settings menu flow.
      *
