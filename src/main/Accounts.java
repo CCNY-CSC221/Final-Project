@@ -95,7 +95,8 @@ public class Accounts {
             return false;
         }
 
-        accounts.remove(existing);
+        accounts.removeIf(account ->
+                account.getUsername().equals(username));
 
         File file = new File("accounts/" + username + ".txt");
         if (file.exists()) {
