@@ -12,7 +12,7 @@ public class InsightsOutput {
      * Prints the financial analysis results directly to the console terminal.
      * @param reportData A map containing categories and their calculated financial totals.
      */
-    public void displayToConsole(Map<String, Double> reportData) {
+    public void displayToConsole(Map<String, Float> reportData) {
         System.out.println("\n*** HAMILTON HEIGHTS PFM: INSIGHTS REPORT ***");
         
         if (reportData == null || reportData.isEmpty()) {
@@ -23,7 +23,7 @@ public class InsightsOutput {
         System.out.printf("%-20s %10s%n", "Category", "Amount");
         System.out.println("------------------------------------------");
 
-        for (Map.Entry<String, Double> entry : reportData.entrySet()) {
+        for (Map.Entry<String, Float> entry : reportData.entrySet()) {
             // Uses camelCase for variables and printf for formatting 
             System.out.printf("%-20s $%10.2f%n", entry.getKey(), entry.getValue());
         }
@@ -35,12 +35,12 @@ public class InsightsOutput {
      * @param reportData The map of financial results to be saved.
      * @param fileName The target name for the file (e.g., "InsightReport.csv").
      */
-    public void exportToCSV(Map<String, Double> reportData, String fileName) {
+    public void exportToCSV(Map<String, Float> reportData, String fileName) {
         try (FileWriter writer = new FileWriter(fileName)) {
             // Requirement: First line must contain the header
             writer.append("Category,Amount\n");
 
-            for (Map.Entry<String, Double> entry : reportData.entrySet()) {
+            for (Map.Entry<String, Float> entry : reportData.entrySet()) {
                 writer.append(entry.getKey())
                       .append(",")
                       .append(String.valueOf(entry.getValue()))
@@ -51,7 +51,6 @@ public class InsightsOutput {
             System.out.println("Error: Could not save the CSV file.");
         }
     }
-
 }
 
     /* * TESTING LOG (Hsaung Eindra Soe):
@@ -59,9 +58,9 @@ public class InsightsOutput {
      * * public static void main(String[] args) {
      * InsightsOutput tester = new InsightsOutput();
      * Map<String, Double> testData = new HashMap<>();
-     * testData.put("Food", -500.00);
-     * testData.put("Compensation", 4000.00);
-     * testData.put("Entertainment", -150.00);
+     * testData.put("Food", -500.00f);
+     * testData.put("Compensation", 4000.00f);
+     * testData.put("Entertainment", -150.00)f;
      * * tester.displayToConsole(testData);
      * tester.exportToCSV(testData, "test_report.csv");
      * }
