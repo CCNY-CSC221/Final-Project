@@ -12,7 +12,7 @@ public class FileChecker {
     private DataValidator validator;
 
     /**
-     * Default constructor for FileChecker.
+     * Default constructor for FileChecker.I
      * * @author Sharif
      */
     public FileChecker() {
@@ -31,11 +31,8 @@ public class FileChecker {
         }
 
         try {
-            // Uses Storage Team's FileFolderManager to read the CSV
-            // String fileContent = FileFolderManager.readFile(filePath);
-            
-            // Placeholder text so the code can be tested for now
-            String fileContent = "Date,Category,Amount\n01/01/2024,Food,-50"; 
+            // We removed the placeholder and are now using the real Storage method
+            String fileContent = FileFolderManager.readFile(filePath);
 
             if (fileContent == null || fileContent.trim().isEmpty()) {
                 return false;
