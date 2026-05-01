@@ -46,31 +46,28 @@ public class Accounts {
      */
     public boolean createAccount(String username, String password,
                                  String secretQuestion, String secretAnswer) {
-
         if (username == null || username.isBlank() ||
             password == null || password.isBlank() ||
             secretQuestion == null || secretQuestion.isBlank() ||
             secretAnswer == null || secretAnswer.isBlank()) {
             return false;
         }
-
         AccountStorage storage = new AccountStorage();
-
         if (storage.loadAccountFromFile(username) != null) {
             return false;
         }
 
-        this.username = username;
-        this.password = password;
-        this.secretQuestion = secretQuestion;
-        this.secretAnswer = secretAnswer;
-        this.signedIn = false;
+        // Create new account object (constructor remains thin)
+        Accounts newAccount = new Accounts(username, password,
+                                           secretQuestion, secretAnswer);
 
-        if (storage.saveAccountToFile(this, username)) {
-            accounts.add(this);
+        // Encode password before saving and storing in memory
+        newAccount.setPassword(storage.obfuscatePassword(password));
+
+        if (storage.saveAccountToFile(newAccount, username)) {
+            accounts.add(newAccount);
             return true;
         }
-
         return false;
     }
 
@@ -220,7 +217,7 @@ public class Accounts {
     /**
      * Changes the password for an existing user account.
      *
-     * @param username    the username of the account
+     * @param username the username of the account
      * @param oldPassword the current password to verify identity
      * @param newPassword the new password to set
      * @return true if the password is successfully changed, false otherwise
@@ -229,58 +226,50 @@ public class Accounts {
     public boolean changePassword(String username,
                                   String oldPassword,
                                   String newPassword) {
-
         if (username == null || username.isBlank() ||
             oldPassword == null || oldPassword.isBlank() ||
             newPassword == null || newPassword.isBlank()) {
             return false;
         }
-
         Accounts account = readAccount(username);
         if (account == null) {
             return false;
         }
-
         AccountStorage storage = new AccountStorage();
-
         if (!storage.obfuscatePassword(oldPassword)
-                .equals(storage.obfuscatePassword(account.getPassword()))) {
+                .equals(account.getPassword())) {   // Compare with encoded password
             return false;
         }
-
-        account.setPassword(newPassword);
+        account.setPassword(storage.obfuscatePassword(newPassword));  // Encode new password
         return true;
     }
 
     /**
      * Resets the password using a secret question answer.
      *
-     * @param username     the username of the account
+     * @param username the username of the account
      * @param secretAnswer the answer to the secret question
-     * @param newPassword  the new password to set
+     * @param newPassword the new password to set
      * @return true if the password is successfully reset, false otherwise
      * @author Ayman Ahsan
      */
     public boolean resetPasswordBySecretQuestion(String username,
                                                  String secretAnswer,
                                                  String newPassword) {
-
         if (username == null || username.isBlank() ||
             secretAnswer == null || secretAnswer.isBlank() ||
             newPassword == null || newPassword.isBlank()) {
             return false;
         }
-
         if (!verifySecretAnswer(username, secretAnswer)) {
             return false;
         }
-
         Accounts account = readAccount(username);
         if (account == null) {
             return false;
         }
-
-        account.setPassword(newPassword);
+        AccountStorage storage = new AccountStorage();
+        account.setPassword(storage.obfuscatePassword(newPassword));  // Encode new password
         return true;
     }
 
