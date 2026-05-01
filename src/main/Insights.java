@@ -5,11 +5,11 @@ import java.util.*;
  * to provide the user with spending patterns, surpluses, and deficit warnings.
  */
 public class Insights {
-	
+
 	private List<String> excludedCategories = new ArrayList<>();
-	private static final List<String> VALID_CATEGORIES = Arrays.asList(
-			"Compensation", "Allowance", "Investments", "Other", 
-			"Home", "Utilities", "Food", "Appearance", "Work", "Education", "Transportation", "Entertainment", "Professional Services");
+	// Removed the private static final List<String> VALID_CATEGORIES - No longer
+	// needed
+
 	/**
 	 * * Calculates required spending cuts for specific categories.
 	 * 
@@ -17,8 +17,9 @@ public class Insights {
 	 * @param ledger           The financial data to be analyzed.
 	 * @param targetCategories Categories to be reduced.
 	 */
-	public Map<String, Double> analyzeDeficit(Object ledger, List<String> targetCategories) {
-		Map<String, Double> reductionSuggestions = new HashMap<>();
+	public Map<String, Float> analyzeDeficit(Object ledger, List<String> targetCategories) {
+		Map<String, Float> reductionSuggestions = new HashMap<>();
+		DataValidator validator = new DataValidator(); // Line 1: Create the validator
 
 		// Safety Check (Validation/Error)
 		if (targetCategories == null || targetCategories.isEmpty()) {
@@ -26,33 +27,34 @@ public class Insights {
 		}
 
 		/**
-		 * Integration Bridge Once Storage moves to default package, uncomment the lines
-		 * below: TransactionLedger ledger = (TransactionLedger) ledgerPlaceholder;
-		 * double totalIncome = ledger.getTotalIncome(); double totalExpense =
-		 * ledger.getTotalExpense();
+		 * FINAL INTEGRATION PLAN: Once TransactionLedger is moved to the default
+		 * package, the lines below will replace the hardcoded placeholders: *
+		 * TransactionLedger realLedger = (TransactionLedger) ledger; float totalIncome
+		 * = realLedger.getTotalIncome(); float totalExpense =
+		 * realLedger.getTotalExpense();
 		 */
 
 		// PLACEHOLDER VALUES for current development
-		double totalIncome = 40000.0;
-		double totalExpense = 50000.0;
-		double totalDeficit = totalExpense - totalIncome;
+		float totalIncome = 40000.0f;
+		float totalExpense = 50000.0f;
+		float totalDeficit = totalExpense - totalIncome;
 
-		// Surplus Check (If income >= expenses, no cuts needed)
+		// Surplus Check
 		if (totalDeficit <= 0) {
 			return reductionSuggestions;
 		}
 
 		// Proportional Reduction Logic
-		// We divide the total deficit by the number of categories the user is willing
-		// to cut.
-		double cutAmountPerCategory = totalDeficit / targetCategories.size();
+		float cutAmountPerCategory = totalDeficit / targetCategories.size();
 
 		for (String category : targetCategories) {
-			reductionSuggestions.put(category, cutAmountPerCategory);
+			// Line 2: Only add if the validation team's code says it's a real category
+			if (validator.isValidCategory(category)) {
+				reductionSuggestions.put(category, cutAmountPerCategory);
+			}
 		}
 
 		return reductionSuggestions;
-
 	}
 
 	/**
@@ -64,36 +66,36 @@ public class Insights {
 	public Map<String, Float> calculatePercentageBreakdown(TransactionLedger ledger) {
 		Map<String, Float> percentages = new HashMap<>();
 		Map<String, Float> categoryTotals = ledger.getCategoryTotals();
-		
+
 		float totalExpenses = 0.0f;
-		
+
 		// Find total expenses of non excluded categories.
 		for (Map.Entry<String, Float> entry : categoryTotals.entrySet()) {
 			String category = entry.getKey();
 			float totalAmount = entry.getValue();
-			
+
 			if (totalAmount < 0 && !this.excludedCategories.contains(category)) {
 				totalExpenses += Math.abs(totalAmount);
 			}
 		}
-		
+
 		// Prevent dividing by 0.
 		if (totalExpenses == 0.0f) {
 			return percentages;
 		}
-		
+
 		// Calculate percentage for each valid category
 		for (Map.Entry<String, Float> entry : categoryTotals.entrySet()) {
 			String category = entry.getKey();
 			float totalAmount = entry.getValue();
-			
+
 			if (totalAmount < 0 && !this.excludedCategories.contains(category)) {
 				float categoryTotal = Math.abs(totalAmount);
 				float percentage = (categoryTotal / totalExpenses) * 100f;
 				percentages.put(category, percentage);
 			}
 		}
-		
+
 		return percentages;
 	}
 
@@ -108,19 +110,17 @@ public class Insights {
 		if (categories == null) {
 			return;
 		}
-		
+
 		excludedCategories.clear();
-		
+
 		for (String category : categories) {
 			if (validator.isValidCategory(category)) {
 				excludedCategories.add(category);
-			}
-			else {
+			} else {
 				System.out.println(category + " is not a valid category to exclude");
 			}
 		}
 	}
-
 
 	/**
 	 * * Finds extra money and suggests where to spend it.
