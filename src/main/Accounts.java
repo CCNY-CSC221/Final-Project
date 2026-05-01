@@ -20,8 +20,10 @@ public class Accounts {
     /**
      * Default constructor
      */
-    public Accounts() {
-        loadExistingAccounts();
+    public Accounts(boolean skipLoad) {
+        if (!skipLoad) {
+            loadExistingAccounts();
+        }
     }
 
     /**
