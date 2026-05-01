@@ -56,7 +56,7 @@ public class AccountStorage {
                 secretQuestion == null || secretAnswer == null) {
                 return null;
             }
-            Accounts account = new Accounts();
+            Accounts account = new Accounts(true);
             account.setUsername(username);
             account.setPassword(password);
             account.setSecretQuestion(secretQuestion);
