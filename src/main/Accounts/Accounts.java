@@ -27,8 +27,10 @@ public class Accounts {
      */
     public Accounts(String username, String password,
                     String secretQuestion, String secretAnswer) {
+        AccountStorage storage = new AccountStorage();
+        
         this.username = username;
-        this.password = password;
+        this.password = storage.obfuscatePassword(password);
         this.secretQuestion = secretQuestion;
         this.secretAnswer = secretAnswer;
         this.signedIn = false;
