@@ -1,4 +1,3 @@
-package Accounts;
 import java.io.*;
 import java.util.Base64;
 /**
