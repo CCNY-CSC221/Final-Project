@@ -195,7 +195,7 @@ public class Insights {
         float amount = categoryTotals.get(category);//Retrieves expenses to be filtered.
 
         if (amount < 0) {//Filters out expenses
-            targetCategories.add(category);//If its not an expense, it adds it to the ArrayList.
+            targetCategories.add(category);//If its not an expense, it adds it to the ArrayList. // test? pls work
         }
     }
 
