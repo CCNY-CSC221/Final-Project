@@ -1,3 +1,5 @@
+import java.util.*;
+
 /**
  * Starts the program, controls the menu flow, and calls other modules
  * depending on the user's menu choice.
@@ -10,6 +12,21 @@ public class IntegrationManager {
     private final FileChecker fileChecker;
     private final Accounts accountManager;
 
+    // Handles Insights calculations
+    private final Insights insights;
+
+    // Handles Insights output to console or CSV
+    private final InsightsOutput insightsOutput;
+
+    // Handles Data Audit user/year validation
+    private final AuditUser auditUser;
+
+    // Handles Data Audit status checking
+    private final AuditControl auditControl;
+
+    // Handles saving and deleting audit reports
+    private final StoreAudit storeAudit;
+
     private String currentUsername;
 
     /**
@@ -21,6 +38,15 @@ public class IntegrationManager {
         frontendConnector = new FrontendConnector();
         fileChecker = new FileChecker();
         accountManager = new Accounts(false);
+
+        // Initialize Insights modules
+        insights = new Insights();
+        insightsOutput = new InsightsOutput();
+
+        // Initialize Data Audit modules
+        auditUser = new AuditUser();
+        auditControl = new AuditControl();
+        storeAudit = new StoreAudit();
 
         currentUsername = "";
     }
@@ -54,7 +80,7 @@ public class IntegrationManager {
 
         while (running) {
 
-            if(!authenticated) {
+            if (!authenticated) {
 
                 int option = frontendConnector.showAuthenticationMenu();
                 String username = "";
@@ -462,6 +488,7 @@ private boolean isValidYear(String yearInput) {
      * Handles the Insights menu flow.
      *
      * @author Dmytro Shumlianskyi
+     * @author Khattab Sulaiman
      */
     private void handleInsightsMenu() {
         boolean inInsightsMenu = true;
@@ -473,19 +500,59 @@ private boolean isValidYear(String yearInput) {
                 case 1:
                     // TODO:
                     // Later this should call Insights.calculatePercentageBreakdown().
-                    System.out.println("Spending percentage breakdown selected.");
+                    try {
+                        System.out.print("Enter year for spending percentage breakdown: ");
+                        int year = Integer.parseInt(frontendConnector.readTextInput());
+
+                        TransactionLedger ledger = getLedgerForCurrentUser(year);
+
+                        Map<String, Float> percentages = insights.calculatePercentageBreakdown(ledger);
+                        insightsOutput.displayToConsole(percentages);
+
+                    } catch (Exception exception) {
+                        System.out.println(handleException(exception));
+                    }
                     break;
 
                 case 2:
                     // TODO:
                     // Later this should call Insights.analyzeDeficit().
-                    System.out.println("Deficit suggestions selected.");
+                    try {
+                        System.out.print("Enter year for deficit suggestions: ");
+                        int year = Integer.parseInt(frontendConnector.readTextInput());
+
+                        TransactionLedger ledger = getLedgerForCurrentUser(year);
+
+                        List<String> targetCategories =
+                            new ArrayList<String>(ledger.getCategoryTotals().keySet());
+
+                        Map<String, Float> deficitSuggestions =
+                            insights.analyzeDeficit(ledger, targetCategories);
+
+                        insightsOutput.displayToConsole(deficitSuggestions);
+
+                    } catch (Exception exception) {
+                        System.out.println(handleException(exception));
+                    }
                     break;
 
                 case 3:
                     // TODO:
                     // Later this should call InsightsOutput.exportToCSV().
-                    System.out.println("Export insights to CSV selected.");
+                    try {
+                        System.out.print("Enter year to export insights: ");
+                        int year = Integer.parseInt(frontendConnector.readTextInput());
+
+                        TransactionLedger ledger = getLedgerForCurrentUser(year);
+
+                        Map<String, Float> percentages =
+                            insights.calculatePercentageBreakdown(ledger);
+
+                        insightsOutput.exportToCSV(percentages, "insights_" + year + ".csv");
+
+                    } catch (Exception exception) {
+                        System.out.println(handleException(exception));
+                    }
                     break;
 
                 case 4:
@@ -499,13 +566,14 @@ private boolean isValidYear(String yearInput) {
             }
         }
     }
-
+    
     /**
      * Handles the Data Audit menu flow.
      *
      * @author Dmytro Shumlianskyi
+     * @author Khattab Sulaiman
      */
-    private void handleDataAuditMenu() {
+       private void handleDataAuditMenu() {
         boolean inDataAuditMenu = true;
 
         while (inDataAuditMenu) {
@@ -516,19 +584,67 @@ private boolean isValidYear(String yearInput) {
                     // TODO:
                     // Later this should ask for the year
                     // and call the Data Audit module to run the audit.
-                    System.out.println("Run audit for year selected.");
+                    try {
+                        System.out.print("Enter year to audit: ");
+                        int year = Integer.parseInt(frontendConnector.readTextInput());
+
+                        boolean valid = auditUser.validateUserData(currentUsername, year);
+
+                        if (!valid) {
+                            System.out.println("Invalid user or year for audit.");
+                            break;
+                        }
+
+                        String report = auditUser.generateReport(currentUsername, year);
+                        System.out.println(report);
+
+                        String status = auditControl.checkStatus(currentUsername, year, true);
+                        System.out.println(status);
+
+                    } catch (Exception exception) {
+                        System.out.println(handleException(exception));
+                    }
                     break;
 
                 case 2:
                     // TODO:
                     // Later this should call StoreAudit.saveAudit().
-                    System.out.println("Save audit report selected.");
+                    try {
+                        System.out.print("Enter year to save audit report: ");
+                        int year = Integer.parseInt(frontendConnector.readTextInput());
+
+                        String report = auditUser.generateReport(currentUsername, year);
+                        boolean saved = storeAudit.saveAudit(currentUsername, year, report);
+
+                        if (saved) {
+                            System.out.println("Audit report saved successfully.");
+                        } else {
+                            System.out.println("Audit report could not be saved.");
+                        }
+
+                    } catch (Exception exception) {
+                        System.out.println(handleException(exception));
+                    }
                     break;
 
                 case 3:
                     // TODO:
                     // Later this should call StoreAudit.purgeRecords().
-                    System.out.println("Delete old audit records selected.");
+                    try {
+                        System.out.print("Enter timeframe to delete old audit records: ");
+                        String timeframe = frontendConnector.readTextInput();
+
+                        boolean purged = storeAudit.purgeRecords(currentUsername, timeframe);
+
+                        if (purged) {
+                            System.out.println("Old audit records deleted successfully.");
+                        } else {
+                            System.out.println("No matching audit records were deleted.");
+                        }
+
+                    } catch (Exception exception) {
+                        System.out.println(handleException(exception));
+                    }
                     break;
 
                 case 4:
@@ -618,6 +734,27 @@ private boolean isValidYear(String yearInput) {
         }
 
         return true;
+    }
+
+  /**
+     * Gets the TransactionLedger for the currently logged-in user and selected year.
+     *
+     * @param year the selected year
+     * @return the TransactionLedger for that year
+     * @author Khattab Sulaiman
+     */
+    private TransactionLedger getLedgerForCurrentUser(int year) {
+        if (currentUsername == null || currentUsername.isEmpty()) {
+            throw new IllegalArgumentException("No user is currently logged in.");
+        }
+
+        UserStorage userStorage = StorageService.loadUserStorage(currentUsername);
+
+        if (!userStorage.hasLedgerForYear(year)) {
+            throw new IllegalArgumentException("No saved ledger found for year " + year + ".");
+        }
+
+        return userStorage.getLedgerByYear(year);
     }
 
     /**
