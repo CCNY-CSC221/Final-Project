@@ -8,6 +8,10 @@ public class IntegrationManager {
     
     private final FrontendConnector frontendConnector;
     private final FileChecker fileChecker;
+    private final Accounts accountManager;
+    private final AccountStorage accountStorage;
+
+    private String currentUsername;
 
     /**
      * Creates an IntegrationManager object.
@@ -17,6 +21,9 @@ public class IntegrationManager {
     public IntegrationManager() {
         frontendConnector = new FrontendConnector();
         fileChecker = new FileChecker();
+        accountManager = new Accounts();
+        accountStorage = new AccountStorage();
+        currentUsername = "";
     }
 
     /**
@@ -48,21 +55,53 @@ public class IntegrationManager {
 
         while (running && !authenticated) {
             int option = frontendConnector.showAuthenticationMenu();
+            String username = "";
+            String password = "";
             
             switch (option) {
                 case 1:
-                    // TODO:
-                    // Later this should get username and password from the user
-                    // and call Accounts.signIn(username, password).
-                    authenticated = true;
-                    System.out.println("Login successful.");
+                    // Handles login
+                    System.out.print("Enter username: ");
+                    String loginUsername = frontendConnector.readTextInput();
+
+                    System.out.print("Enter password: ");
+                    String loginPassword = frontendConnector.readTextInput();
+
+                    if (accountManager.signIn(loginUsername, loginPassword)) {
+                        authenticated = true;
+                        currentUsername = loginUsername;
+                        System.out.println("Login successful.");
+                    } else {
+                        System.out.println("Login failed. Check your username or password.");
+                    }
                     break;
 
                 case 2:
-                    // TODO:
-                    // Later this should get account information from the user
-                    // and call Accounts.createAccount().
-                    System.out.println("Create account selected.");
+                    // Handles account creation
+                    System.out.print("Enter username: ");
+                    username = frontendConnector.readTextInput();
+
+                    System.out.print("Enter password: ");
+                    password = frontendConnector.readTextInput();
+
+                    System.out.print("Enter secret question: ");
+                    String secretQuestion = frontendConnector.readTextInput();
+
+                    System.out.print("Enter secret answer: ");
+                    String secretAnswer = frontendConnector.readTextInput();
+
+                    boolean accountCreated = accountManager.createAccount(
+                        username,
+                        password,
+                        secretQuestion,
+                        secretAnswer
+                    );
+
+                    if (accountCreated) {
+                        System.out.println("Account created successfully.");
+                    } else {
+                        System.out.println("Account could not be created.");
+                    }
                     break;
                     
                 case 3:
@@ -140,9 +179,23 @@ public class IntegrationManager {
 
             switch (option) {
                 case 1:
-                    // TODO: Get username, secret answer, and new password.
-                    // Later this should call Accounts.resetPasswordBySecretQuestion().
-                    System.out.println("Reset password by secret question selected.");
+                    System.out.print("Enter username: ");
+                    String resetUsername = frontendConnector.readTextInput();
+
+                    System.out.print("Enter secret answer: ");
+                    String resetSecretAnswer = frontendConnector.readTextInput();
+
+                    System.out.print("Enter new password: ");
+                    String resetNewPassword = frontendConnector.readTextInput();
+
+                    if (accountManager.resetPasswordBySecretQuestion(
+                            resetUsername,
+                            resetSecretAnswer,
+                            resetNewPassword)) {
+                        System.out.println("Password reset successfully.");
+                    } else {
+                        System.out.println("Password reset failed.");
+                    }
                     break;
 
                 case 2:
@@ -361,21 +414,48 @@ public class IntegrationManager {
 
             switch (option) {
                 case 1:
-                    // TODO:
-                    // Later this should call Accounts.changePassword().
-                    System.out.println("Change password selected.");
+                    // Change password
+                    System.out.print("Enter current password: ");
+                    String oldPassword = frontendConnector.readTextInput();
+
+                    System.out.print("Enter new password: ");
+                    String newPassword = frontendConnector.readTextInput();
+
+                    if (accountManager.changePassword(currentUsername, oldPassword, newPassword)) {
+                        System.out.println("Password changed successfully.");
+                    } else {
+                        System.out.println("Password could not be changed.");
+                    }
+                
                     break;
 
                 case 2:
-                    // TODO:
-                    // Later this should call Accounts.updateAccount().
-                    System.out.println("Update secret question selected.");
+                    // Update secret question
+                    System.out.print("Enter new secret question: ");
+                    String newQuestion = frontendConnector.readTextInput();
+
+                    System.out.print("Enter new secret answer: ");
+                    String newAnswer = frontendConnector.readTextInput();
+
+                    if (accountManager.updateAccount(currentUsername, newQuestion, newAnswer)) {
+                        System.out.println("Secret question updated successfully.");
+                    } else {
+                        System.out.println("Secret question could not be updated.");
+                    }
                     break;
 
                 case 3:
-                    // TODO:
-                    // Later this should call Accounts.deleteAccount().
-                    System.out.println("Delete account selected.");
+                    // Delete account
+                    System.out.print("Enter password to confirm account deletion: ");
+                    String deletePassword = frontendConnector.readTextInput();
+
+                    if (accountManager.deleteAccount(currentUsername, deletePassword)) {
+                        System.out.println("Account deleted successfully.");
+                        currentUsername = "";
+                        inAccountSettings = false;
+                    } else {
+                        System.out.println("Account could not be deleted.");
+                    }
                     break;
 
                 case 4:
