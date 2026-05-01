@@ -175,8 +175,7 @@ public class Accounts {
 
         for (Accounts account : accounts) {
             if (account.getUsername().equals(username) &&
-                storage.obfuscatePassword(account.getPassword())
-                .equals(encryptedPassword)) {
+                account.getPassword().equals(encryptedPassword)) {
 
                 if (account.isSignedIn()) {
                     return false;
