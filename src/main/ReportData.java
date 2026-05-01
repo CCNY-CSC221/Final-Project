@@ -1,4 +1,3 @@
-package Reports;
 import java.util.ArrayList;
 import java.util.List;
 import java.time.LocalDate;
@@ -23,6 +22,13 @@ public class ReportData {
         this.monthlyTotals = new ArrayList<>();
         this.categoryTotals = new ArrayList<>();
         this.netIncome = 0;
+    }
+
+    public ReportData(TransactionLedger ledger) {
+        this();
+        for (Transaction transaction : ledger.getTransactions()) {
+            addTransaction(transaction);
+        }
     }
 
     /**

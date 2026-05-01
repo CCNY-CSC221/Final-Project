@@ -1,4 +1,3 @@
-package Reports;
 /**
  * This class formats the ReportData into readable text or CSV strings.
  * @author Henry Tran

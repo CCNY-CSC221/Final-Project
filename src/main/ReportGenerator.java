@@ -1,5 +1,3 @@
-package Reports;
-
 /**
  * @author Wesley Pilamunga
  * The ReportGenerator interface defines methods for generating

@@ -1,4 +1,3 @@
-package Reports;
 //TODO add imports when Storage config is done
 /**
  * Provides report generation services.
@@ -105,7 +104,7 @@ public class ReportService implements ReportGenerator {
      * @param data the report data
      * @return formatted report text
      */
-    @Override
+
     public String formatReport(ReportData data) {
         return data.toString();
     }
