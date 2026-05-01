@@ -28,10 +28,8 @@ public class Accounts {
      */
     public Accounts(String username, String password,
                     String secretQuestion, String secretAnswer) {
-        AccountStorage storage = new AccountStorage();
-        
         this.username = username;
-        this.password = storage.obfuscatePassword(password);
+        this.password = password;
         this.secretQuestion = secretQuestion;
         this.secretAnswer = secretAnswer;
         this.signedIn = false;
@@ -60,7 +58,7 @@ public class Accounts {
         }
 
         this.username = username;
-        this.password = storage.obfuscatePassword(password);
+        this.password = password;
         this.secretQuestion = secretQuestion;
         this.secretAnswer = secretAnswer;
         this.signedIn = false;
@@ -101,11 +99,12 @@ public class Accounts {
 
         File file = new File("accounts/" + username + ".txt");
         if (file.exists()) {
-            file.delete();
+            return file.delete();
         }
 
-        return true;
+        return false;
     }
+
     /**
      * Reads and returns the account information for a given username.
      *
@@ -172,7 +171,8 @@ public class Accounts {
 
         for (Accounts account : accounts) {
             if (account.getUsername().equals(username) &&
-                account.getPassword().equals(encryptedPassword)) {
+                storage.obfuscatePassword(account.getPassword())
+                .equals(encryptedPassword)) {
 
                 if (account.isSignedIn()) {
                     return false;
@@ -241,11 +241,11 @@ public class Accounts {
         AccountStorage storage = new AccountStorage();
 
         if (!storage.obfuscatePassword(oldPassword)
-                .equals(account.getPassword())) {
+                .equals(storage.obfuscatePassword(account.getPassword()))) {
             return false;
         }
 
-        account.setPassword(storage.obfuscatePassword(newPassword));
+        account.setPassword(newPassword);
         return true;
     }
 
@@ -277,8 +277,7 @@ public class Accounts {
             return false;
         }
 
-        AccountStorage storage = new AccountStorage();
-        account.setPassword(storage.obfuscatePassword(newPassword));
+        account.setPassword(newPassword);
         return true;
     }
 
