@@ -9,7 +9,6 @@ public class IntegrationManager {
     private final FrontendConnector frontendConnector;
     private final FileChecker fileChecker;
     private final Accounts accountManager;
-    private final AccountStorage accountStorage;
 
     private String currentUsername;
 
@@ -21,8 +20,7 @@ public class IntegrationManager {
     public IntegrationManager() {
         frontendConnector = new FrontendConnector();
         fileChecker = new FileChecker();
-        accountManager = new Accounts();
-        accountStorage = new AccountStorage();
+        accountManager = new Accounts(false);
         currentUsername = "";
     }
 
@@ -53,115 +51,123 @@ public class IntegrationManager {
         boolean running = true;
         boolean authenticated = false;
 
-        while (running && !authenticated) {
-            int option = frontendConnector.showAuthenticationMenu();
-            String username = "";
-            String password = "";
+        while (running) {
+
+            if(!authenticated) {
+
+                int option = frontendConnector.showAuthenticationMenu();
+                String username = "";
+                String password = "";
+                
+                switch (option) {
+                    case 1:
+                        // Handles login
+                        System.out.print("Enter username: ");
+                        String loginUsername = frontendConnector.readTextInput();
+
+                        System.out.print("Enter password: ");
+                        String loginPassword = frontendConnector.readTextInput();
+
+                        if (accountManager.signIn(loginUsername, loginPassword)) {
+                            authenticated = true;
+                            currentUsername = loginUsername;
+                            System.out.println("Login successful.");
+                        } else {
+                            System.out.println("Login failed. Check your username or password.");
+                        }
+                        break;
+
+                    case 2:
+                        // Handles account creation
+                        System.out.print("Enter username: ");
+                        username = frontendConnector.readTextInput();
+
+                        System.out.print("Enter password: ");
+                        password = frontendConnector.readTextInput();
+
+                        System.out.print("Enter secret question: ");
+                        String secretQuestion = frontendConnector.readTextInput();
+
+                        System.out.print("Enter secret answer: ");
+                        String secretAnswer = frontendConnector.readTextInput();
+
+                        boolean accountCreated = accountManager.createAccount(
+                            username,
+                            password,
+                            secretQuestion,
+                            secretAnswer
+                        );
+
+                        if (accountCreated) {
+                            System.out.println("Account created successfully.");
+                        } else {
+                            System.out.println("Account could not be created.");
+                        }
+                        break;
+                        
+                    case 3:
+                        // Opens forgot password menu.
+                        handleForgotPasswordMenu();
+                        break;
+
+                    case 4:
+                        running = false;
+                        System.out.println("Program closed.");
+                        break;
+
+                    default:
+                        System.out.println("Invalid option. Try again.");
+                        break;
+                }
+
+            } else {
+                int option = frontendConnector.showMainMenu();
             
-            switch (option) {
-                case 1:
-                    // Handles login
-                    System.out.print("Enter username: ");
-                    String loginUsername = frontendConnector.readTextInput();
+                switch (option) {           
+                    case 1:
+                        // Load Year CSV data
+                        handleLoadYearlyCSV();
+                        break;
 
-                    System.out.print("Enter password: ");
-                    String loginPassword = frontendConnector.readTextInput();
+                    case 2:
+                        // Opens year data menu
+                        handleYearDataMenu();
+                        break;
 
-                    if (accountManager.signIn(loginUsername, loginPassword)) {
-                        authenticated = true;
-                        currentUsername = loginUsername;
-                        System.out.println("Login successful.");
-                    } else {
-                        System.out.println("Login failed. Check your username or password.");
-                    }
-                    break;
+                    case 3:
+                        // Opens report menu
+                        handleReportMenu();
+                        break;
 
-                case 2:
-                    // Handles account creation
-                    System.out.print("Enter username: ");
-                    username = frontendConnector.readTextInput();
+                    case 4:
+                        // Opens insights menu
+                        handleInsightsMenu();
+                        break;
 
-                    System.out.print("Enter password: ");
-                    password = frontendConnector.readTextInput();
+                    case 5:
+                        // Opens data audit menu
+                        handleDataAuditMenu();
+                        break;
 
-                    System.out.print("Enter secret question: ");
-                    String secretQuestion = frontendConnector.readTextInput();
+                    case 6: 
+                        // Opens the account settings menu
+                        authenticated = handleAccountSettingsMenu();
 
-                    System.out.print("Enter secret answer: ");
-                    String secretAnswer = frontendConnector.readTextInput();
+                        if (!authenticated) {
+                            System.out.println("Returning to authentication menu.");
+                        }
+                        
+                        break;
 
-                    boolean accountCreated = accountManager.createAccount(
-                        username,
-                        password,
-                        secretQuestion,
-                        secretAnswer
-                    );
+                    case 7: 
+                        running = false;
+                        System.out.println("Program closed.");
+                        break;
 
-                    if (accountCreated) {
-                        System.out.println("Account created successfully.");
-                    } else {
-                        System.out.println("Account could not be created.");
-                    }
-                    break;
-                    
-                case 3:
-                    // Opens forgot password menu.
-                    handleForgotPasswordMenu();
-                    break;
-
-                case 4:
-                    running = false;
-                    System.out.println("Program closed.");
-                    break;
-
-                default:
-                    System.out.println("Invalid option. Try again.");
-                    break;
-            }
-        }
-
-        while(running && authenticated) {
-            int option = frontendConnector.showMainMenu();
-            
-            switch (option) {           
-                case 1:
-                    // Load Year CSV data
-                    handleLoadYearlyCSV();
-                    break;
-
-                case 2:
-                    // Opens year data menu
-                    handleYearDataMenu();
-                    break;
-
-                case 3:
-                    // Opens report menu
-                    handleReportMenu();
-                    break;
-
-                case 4:
-                    // Opens insights menu
-                    handleInsightsMenu();
-                    break;
-
-                case 5:
-                    // Opens data audit menu
-                    handleDataAuditMenu();
-                    break;
-
-                case 6: 
-                    // Opens the account settings menu
-                    handleAccountSettingsMenu();
-                    break;
-
-                case 7: 
-                    running = false;
-                    System.out.println("Program closed.");
-                    break;
-
-                default:
-                    System.out.println("Invalid option. Try again.");
-                    break;
+                    default:
+                        System.out.println("Invalid option. Try again.");
+                        break;
+                }
             }
         }
     }
@@ -515,11 +521,13 @@ private boolean isValidYear(String yearInput) {
     }
 
     /**
-     * Handles the account settings menu flow.
+     * Handles the account settings menu.
+     * Returns whether the user should stay logged in after using this menu.
      *
+     * @return true if the user is still logged in; false if the account was deleted
      * @author Dmytro Shumlianskyi
      */
-    private void handleAccountSettingsMenu() {
+    private boolean handleAccountSettingsMenu() {
         boolean inAccountSettings = true;
 
         while (inAccountSettings) {
@@ -566,6 +574,10 @@ private boolean isValidYear(String yearInput) {
                         System.out.println("Account deleted successfully.");
                         currentUsername = "";
                         inAccountSettings = false;
+
+                        // user is no longer authenticated
+                        return false; 
+
                     } else {
                         System.out.println("Account could not be deleted.");
                     }
@@ -581,6 +593,8 @@ private boolean isValidYear(String yearInput) {
                     break;
             }
         }
+
+        return true;
     }
 
     /**
