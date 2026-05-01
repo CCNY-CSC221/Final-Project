@@ -7,13 +7,12 @@ import java.util.*;
 public class Insights {
 
 	private List<String> excludedCategories = new ArrayList<>();
-<<<<<<< HEAD
 	// Removed the private static final List<String> VALID_CATEGORIES - No longer
 	// needed
 
-=======
+
 	
->>>>>>> branch 'main' of https://github.com/CCNY-CSC221/Final-Project
+
 	/**
 	 * * Calculates required spending cuts for specific categories.
 	 * 
@@ -133,8 +132,47 @@ public class Insights {
 	 * @param ledger           The financial data to be analyzed.
 	 * @param targetCategories Categories to potentially increase.
 	 */
-	public Map<String, Double> analyzeSurplus(Object ledger, List<String> targetCategories) {
-		return null;
+	public Map<String, Float> analyzeSurplus(TransactionLedger ledger, List<String> targetCategories) {
+
+		Map<String, Float> analysis = new HashMap<>();
+
+
+		Float income = ledger.getTotalIncome(); //total income taken from ledger method.
+		Float expense = ledger.getTotalExpense(); //total expenses taken from a ledger method.
+		Map<String, Float> expenseCategories = ledger.getCategoryTotals(); //map of category to their expense.
+
+		float surplus = income - expense; //Formula for surplus to be used in analyzing
+
+		if(surplus <= 0){
+			return analysis; //A surplus value of 0 or less means there is nothing to analyze. 
+		}
+
+		float totalPerCategory = 0; //THIS MAY BE REDUNDANT AND IF SO ILL FIX IT POST ALPHA-BUILD. the total amount spent on individual categories.
+
+		for(String category: targetCategories){//Adding expenses
+			if(expenseCategories.containsKey(category)){
+				float amount = expenseCategories.get(category);
+				if(amount < 0){
+					totalPerCategory += Math.abs(amount);
+				}
+			}
+		}
+
+		if(totalPerCategory == 0){
+			return analysis;
+		}
+
+		for(String category: targetCategories){
+			if(expenseCategories.containsKey(category)){
+				float amount = expenseCategories.get(category);
+				if(amount < 0){
+					float percentageWeight = Math.abs(amount) / totalPerCategory; //Find the amount that the category takes.
+					float money = surplus * percentageWeight; //Multiply our surplus by that weight to determine how much is spent on the category.
+					analysis.put(category, money);
+				}
+			}
+		}
+		return analysis;
 	}
 
 	/**
@@ -143,6 +181,39 @@ public class Insights {
 	 * @author Donnell
 	 * @param ledger The financial data to be analyzed.
 	 */
-	public void generateInsightReport(Object ledger) {
+	public void generateInsightReport(TransactionLedger ledger) {
+    InsightsOutput insightsOutput = new InsightsOutput(); //how we access methods belonging to InsightsOutput.
+    Map<String, Float> percentBreakdown = calculatePercentageBreakdown(ledger); //reference to @Wilson's method.
+    insightsOutput.displayToConsole(percentBreakdown);//Send it to InsightsOutputs for display.
+
+    // TransactionLedger tl = (TransactionLedger) ledger;//Same logic as previous, we cast to get access to category totals.
+    Map<String, Float> categoryTotals = ledger.getCategoryTotals();
+
+    List<String> targetCategories = new ArrayList<>();//New ArrayList for categories we want to store.
+
+    for (String category : categoryTotals.keySet()) {
+        float amount = categoryTotals.get(category);//Retrieves expenses to be filtered.
+
+        if (amount < 0) {//Filters out expenses
+            targetCategories.add(category);//If its not an expense, it adds it to the ArrayList.
+        }
+    }
+
+    Map<String, Float> surplus = analyzeSurplus(ledger, targetCategories);//run analyze surplus.
+    Map<String, Float> deficit = analyzeDeficit(ledger, targetCategories);//run analyze defecit.
+
+    if (surplus.isEmpty() == false) {//if there is a surplus print it.
+        System.out.println("Surplus Analysis: ");
+        insightsOutput.displayToConsole(surplus);
+
+    } 
+    else if (deficit.isEmpty() == false) {//same as before.
+        System.out.println("Deficit Analysis: ");
+        insightsOutput.displayToConsole(deficit);
+
+    } 
+    else {
+        System.out.println("No surplus or deficit to analyze.");
+    }
 	}
 }
