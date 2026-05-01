@@ -77,7 +77,6 @@ public class Accounts {
      * @author Samuel Dewangga
      */
     public boolean deleteAccount(String username, String password) {
-
         if (username == null || username.isBlank() ||
             password == null || password.isBlank()) {
             return false;
@@ -96,9 +95,14 @@ public class Accounts {
         }
 
         accounts.remove(existing);
+
+        File file = new File("accounts/" + username + ".txt");
+        if (file.exists()) {
+            file.delete();
+        }
+
         return true;
     }
-
     /**
      * Reads and returns the account information for a given username.
      *
