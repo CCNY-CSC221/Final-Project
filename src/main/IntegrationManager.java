@@ -21,6 +21,7 @@ public class IntegrationManager {
         frontendConnector = new FrontendConnector();
         fileChecker = new FileChecker();
         accountManager = new Accounts(false);
+
         currentUsername = "";
     }
 
@@ -160,6 +161,18 @@ public class IntegrationManager {
                         break;
 
                     case 7: 
+                        // Signs out current user
+                        if (accountManager.signOut(currentUsername)) {
+                            currentUsername = "";
+                            authenticated = false;
+                            System.out.println("Signed out successfully.");
+                        } else {
+                            System.out.println("Sign out failed.");
+                        }
+                        
+                        break;
+
+                    case 8: 
                         running = false;
                         System.out.println("Program closed.");
                         break;
@@ -187,6 +200,16 @@ public class IntegrationManager {
                 case 1:
                     System.out.print("Enter username: ");
                     String resetUsername = frontendConnector.readTextInput();
+
+                    AccountStorage storage = new AccountStorage();
+                    Accounts account = storage.loadAccountFromFile(resetUsername);
+
+                    if (account == null) {
+                        System.out.println("Account was not found.");
+                        break;
+                    }
+
+                    System.out.println("Secret question: " + account.getSecretQuestion());
 
                     System.out.print("Enter secret answer: ");
                     String resetSecretAnswer = frontendConnector.readTextInput();
