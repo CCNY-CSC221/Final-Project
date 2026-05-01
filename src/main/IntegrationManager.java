@@ -233,43 +233,156 @@ public class IntegrationManager {
         }
     }
 
-    /**
-     * Handles the Manage Year Data menu flow.
-     *
-     * @author Dmytro Shumlianskyi
-     */
-    private void handleYearDataMenu() {
-        boolean inYearDataMenu = true;
+   /**
+ * Handles the Manage Year Data menu flow.
+ *
+ * @author Mohamed Reda
+ */
+private void handleYearDataMenu() {
+    boolean inYearDataMenu = true;
 
-        while (inYearDataMenu) {
-            int option = frontendConnector.showYearDataMenu();
+    while (inYearDataMenu) {
+        int option = frontendConnector.showYearDataMenu();
 
-            switch (option) {
-                case 1:
-                    // TODO:
-                    // Later this should call Storage to show all saved years
-                    // for the current logged in user.
-                    System.out.println("View saved years selected.");
-                    break;
+        switch (option) {
+            case 1:
+                viewLoadedYearData();
+                break;
 
-                case 2:
-                    // TODO:
-                    // Later this should ask for the year
-                    // and call Storage to delete that year data.
-                    System.out.println("Delete year data selected.");
-                    break;
+            case 2:
+                deleteYearData();
+                break;
 
-                case 3:
-                    inYearDataMenu = false;
-                    System.out.println("Returning to main menu.");
-                    break;
+            case 3:
+                inYearDataMenu = false;
+                System.out.println("Returning to main menu.");
+                break;
 
-                default:
-                    System.out.println("Invalid option. Try again.");
-                    break;
-            }
+            default:
+                System.out.println("Invalid option. Try again.");
+                break;
         }
     }
+}
+
+/**
+ * Displays all yearly CSV files saved for the currently logged-in user.
+ *
+ * @author Mohamed Reda
+ */
+private void viewLoadedYearData() {
+    try {
+        if (currentUsername == null || currentUsername.isEmpty()) {
+            System.out.println("No user is currently logged in.");
+            return;
+        }
+
+        if (!StorageService.isUserStorageSpaceExists(currentUsername)) {
+            System.out.println("No saved yearly data found for this user.");
+            return;
+        }
+
+        String userStoragePath = FileFolderManager.combinePaths(
+            StorageService.BASE_STORAGE_PATH,
+            currentUsername
+        );
+
+        String[] files = FileFolderManager.listFilesInFolder(userStoragePath);
+
+        boolean foundYearData = false;
+
+        System.out.println("\nLoaded yearly data:");
+
+        for (String fileName : files) {
+            if (fileName.endsWith(".csv")) {
+                String year = fileName.substring(0, fileName.length() - 4);
+                System.out.println("- " + year);
+                foundYearData = true;
+            }
+        }
+
+        if (!foundYearData) {
+            System.out.println("No yearly CSV files are currently saved.");
+        }
+
+    } catch (Exception exception) {
+        System.out.println(handleException(exception));
+    }
+}
+
+/**
+ * Deletes a yearly CSV file for the currently logged-in user.
+ *
+ * @author Mohamed Reda
+ */
+private void deleteYearData() {
+    try {
+        if (currentUsername == null || currentUsername.isEmpty()) {
+            System.out.println("No user is currently logged in.");
+            return;
+        }
+
+        if (!StorageService.isUserStorageSpaceExists(currentUsername)) {
+            System.out.println("No saved yearly data found for this user.");
+            return;
+        }
+
+        System.out.print("Enter the year data you want to delete: ");
+        String yearInput = frontendConnector.readTextInput();
+
+        if (!isValidYear(yearInput)) {
+            System.out.println("Invalid year. Please enter a 4-digit year.");
+            return;
+        }
+
+        String fileName = yearInput + ".csv";
+
+        String userStoragePath = FileFolderManager.combinePaths(
+            StorageService.BASE_STORAGE_PATH,
+            currentUsername
+        );
+
+        String yearlyFilePath = FileFolderManager.combinePaths(
+            userStoragePath,
+            fileName
+        );
+
+        if (!FileFolderManager.isFileExists(yearlyFilePath)) {
+            System.out.println("No saved data found for year " + yearInput + ".");
+            return;
+        }
+
+        FileFolderManager.deleteFile(yearlyFilePath);
+
+        System.out.println("Year data for " + yearInput + " was deleted successfully.");
+
+    } catch (Exception exception) {
+        System.out.println(handleException(exception));
+    }
+}
+
+/**
+ * Checks if the user entered a valid 4-digit year.
+ *
+ * @param yearInput the year entered by the user
+ * @return true if the input is a valid year; false otherwise
+ * @author Mohamed Reda
+ */
+private boolean isValidYear(String yearInput) {
+    if (yearInput == null || yearInput.length() != 4) {
+        return false;
+    }
+
+    for (int i = 0; i < yearInput.length(); i++) {
+        if (!Character.isDigit(yearInput.charAt(i))) {
+            return false;
+        }
+    }
+
+    int year = Integer.parseInt(yearInput);
+
+    return year >= 1900 && year <= 2100;
+}
 
     /**
      * Handles the Reports menu flow.
