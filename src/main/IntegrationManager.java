@@ -276,6 +276,7 @@ public class IntegrationManager {
      * Handles the Load Yearly CSV menu option.
      *
      * @author Khattab Sulaiman
+     * @author Dmytro Shumlianskyi
      */
     private void handleLoadYearlyCSV() {
         try {
@@ -284,11 +285,41 @@ public class IntegrationManager {
 
             boolean filePassed = fileChecker.startFileCheck(filePath);
 
-            if (filePassed) {
-                System.out.println("CSV file passed validation and is ready to load.");
-            } else {
+            if (!filePassed) {
                 System.out.println("CSV file failed validation. Please check the file and try again.");
+                return;
             }
+
+            String csvText = FileFolderManager.readFile(filePath);
+            TransactionLedger ledger = TransactionLedger.createFromCSVText(csvText);
+
+            if (ledger.getTransactions().isEmpty()) {
+                System.out.println("CSV file has no transaction data.");
+                return;
+            }
+
+            int year = ledger.getTransactions().get(0).getDate().getYear();
+
+            if (!FileFolderManager.isFolderExists(StorageService.BASE_STORAGE_PATH)) {
+                FileFolderManager.createFolder(StorageService.BASE_STORAGE_PATH);
+            }
+
+            if (!StorageService.isUserStorageSpaceExists(currentUsername)) {
+                StorageService.createUserStorageSpace(currentUsername);
+            }
+
+            UserStorage userStorage = StorageService.loadUserStorage(currentUsername);
+
+            if (userStorage.hasLedgerForYear(year)) {
+                System.out.println("Data for year " + year + " already exists.");
+                System.out.println("Delete that year first if you want to replace it.");
+                return;
+            }
+
+            userStorage.addLedger(ledger);
+            StorageService.saveUserStorage(userStorage);
+
+            System.out.println("CSV file loaded and saved successfully for year " + year + ".");
 
         } catch (Exception exception) {
             System.out.println(handleException(exception));
