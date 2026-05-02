@@ -85,7 +85,7 @@ public class FileChecker {
                validator.isValidType(typePiece);
     }
 
-    /**
+ /**
      * Ensures the column names are in the right places.
      * @param headerRow The first line of the file
      * @return true if headers match expected values
@@ -95,8 +95,8 @@ public class FileChecker {
         if (headerRow == null || headerRow.trim().isEmpty()) {
             return false;
         }
-        // Remove all spaces so we get an exact match no matter what
-        String cleanHeader = headerRow.replaceAll(" ", "");
+        // FIX: Remove hidden BOM, use trim() to remove hidden \r, and strip spaces
+        String cleanHeader = headerRow.replace("\uFEFF", "").trim().replaceAll(" ", "");
         return cleanHeader.equalsIgnoreCase("Date,Category,Description,Amount,Type");
     }
 
