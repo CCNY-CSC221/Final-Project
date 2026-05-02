@@ -26,7 +26,6 @@ public class FileChecker {
         }
 
         try {
-            // We removed the placeholder and are now using the real Storage method
             String fileContent = FileFolderManager.readFile(filePath);
 
             if (fileContent == null || fileContent.trim().isEmpty()) {
@@ -64,28 +63,23 @@ public class FileChecker {
             return false;
         }
 
-        // Split by commas (the -1 catches missing columns at the end)
         String[] rowPieces = rowData.split(",", -1);
 
-        // Expecting 5 parts: Date, Category, Description, Amount, Type
-        if (rowPieces.length != 5) {
+        // Project Spec: 3 parts
+        if (rowPieces.length != 3) {
             return false;
         }
 
         String datePiece = rowPieces[0].trim();
         String categoryPiece = rowPieces[1].trim();
-        String descPiece = rowPieces[2].trim();
-        String amountPiece = rowPieces[3].trim();
-        String typePiece = rowPieces[4].trim();
+        String amountPiece = rowPieces[2].trim();
 
         return validator.isValidDate(datePiece) && 
                validator.isValidCategory(categoryPiece) && 
-               !descPiece.isEmpty() &&
-               validator.isValidAmount(amountPiece) &&
-               validator.isValidType(typePiece);
+               validator.isValidAmount(amountPiece);
     }
 
- /**
+    /**
      * Ensures the column names are in the right places.
      * @param headerRow The first line of the file
      * @return true if headers match expected values
@@ -97,7 +91,7 @@ public class FileChecker {
         }
         // FIX: Remove hidden BOM, use trim() to remove hidden \r, and strip spaces
         String cleanHeader = headerRow.replace("\uFEFF", "").trim().replaceAll(" ", "");
-        return cleanHeader.equalsIgnoreCase("Date,Category,Description,Amount,Type");
+        return cleanHeader.equalsIgnoreCase("Date,Category,Amount");
     }
 
     /**
