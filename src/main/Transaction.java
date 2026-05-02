@@ -50,6 +50,12 @@ final class Transaction implements Comparable<Transaction> {
     	this.setType(type);
     }
 
+	public Transaction(LocalDate date, String category, String description) {
+    	this.setDate(date);
+    	this.setCategory(category);
+    	this.setDescription(description);
+    }
+
     
     /**
      * Parses a CSV row into a Transaction object.
