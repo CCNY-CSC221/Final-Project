@@ -27,6 +27,9 @@ public class IntegrationManager {
     // Handles saving and deleting audit reports
     private final StoreAudit storeAudit;
 
+    // Handles generating reports
+    private final ReportService reportService;
+
     private String currentUsername;
 
     /**
@@ -47,6 +50,10 @@ public class IntegrationManager {
         auditUser = new AuditUser();
         auditControl = new AuditControl();
         storeAudit = new StoreAudit();
+
+        // Initialize Report modules
+        reportService = new ReportService();
+
 
         currentUsername = "";
     }
@@ -443,6 +450,7 @@ private boolean isValidYear(String yearInput) {
      * Handles the Reports menu flow.
      *
      * @author Dmytro Shumlianskyi
+     * @author Matthew Kolodziej
      */
     private void handleReportMenu() {
         boolean inReportMenu = true;
@@ -455,13 +463,32 @@ private boolean isValidYear(String yearInput) {
                     // TODO:
                     // Later this should ask for the year
                     // and call Reports.generateAnnualReport().
-                    System.out.println("Annual report selected.");
+                    try {
+                        System.out.print("Enter the year for the annual report: ");
+                        int year = Integer.parseInt(frontendConnector.readTextInput());
+                        
+                        reportService.generateAnnualReport(currentUsername, year);
+
+                    } catch (Exception exception) {
+                        System.out.println(handleException(exception));
+                    }
+
                     break;
 
                 case 2:
                     // TODO:
                     // Later this should ask for the year
                     // and call Reports.generateCategoryReport().
+                     try {
+                        System.out.print("Enter the year for the category report: ");
+                        int year = Integer.parseInt(frontendConnector.readTextInput());
+
+                        reportService.generateCategoryReport(currentUsername, year);
+
+                    } catch (Exception exception) {
+                        System.out.println(handleException(exception));
+                    }
+
                     System.out.println("Category report selected.");
                     break;
 
@@ -469,6 +496,16 @@ private boolean isValidYear(String yearInput) {
                     // TODO:
                     // Later this should ask for the year
                     // and call Reports.generateMonthlySummary().
+                     try {
+                        System.out.print("Enter the year for the monthly summary: ");
+                        int year = Integer.parseInt(frontendConnector.readTextInput());
+
+                        reportService.generateMonthlySummary(currentUsername, year);
+
+                    } catch (Exception exception) {
+                        System.out.println(handleException(exception));
+                    }
+
                     System.out.println("Monthly summary selected.");
                     break;
 
