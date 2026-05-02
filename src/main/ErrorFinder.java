@@ -6,7 +6,6 @@ import java.util.ArrayList;
  */
 public class ErrorFinder {
 
-    // A simple list to remember the rows we have already checked
     private ArrayList<String> seenRows;
 
     /**
@@ -28,9 +27,8 @@ public class ErrorFinder {
             return true; 
         }
         
-        // Remove spaces to make the check foolproof
         String cleanContent = fileContent.replaceAll(" ", "");
-        if (cleanContent.equalsIgnoreCase("Date,Category,Description,Amount,Type")) {
+        if (cleanContent.equalsIgnoreCase("Date,Category,Amount")) {
             return true;
         }
         
@@ -38,7 +36,7 @@ public class ErrorFinder {
     }
 
     /**
-     * Finds rows where data was left blank (like a missing category or amount).
+     * Finds rows where data was left blank.
      * @param rowData A single row of data
      * @return true if there is missing information, false if complete
      * @author Elham
@@ -52,11 +50,10 @@ public class ErrorFinder {
             return true;
         }
 
-        // Split the row by commas (the -1 ensures it counts trailing commas)
         String[] pieces = rowData.split(",", -1);
         
-        // Now expecting 5 pieces
-        if (pieces.length != 5) {
+        // Project Spec: 3 pieces
+        if (pieces.length != 3) {
             return true;
         }
 
@@ -105,8 +102,8 @@ public class ErrorFinder {
                 continue;
             }
             
-            // Added period (.) for decimals, and dash (-) for dates
-            if (symbol == ' ' || symbol == ',' || symbol == '-' || symbol == '.') {
+            // Allowed symbols: space, comma, slash (for dates), dash (for negative amounts)
+            if (symbol == ' ' || symbol == ',' || symbol == '/' || symbol == '-') {
                 continue;
             }
             return true; 
