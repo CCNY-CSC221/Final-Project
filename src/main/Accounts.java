@@ -149,6 +149,8 @@ public class Accounts {
 
         account.setSecretQuestion(newQuestion);
         account.setSecretAnswer(newAnswer);
+        AccountStorage storage = new AccountStorage();
+        storage.saveAccountToFile(account, username);  // Save updated account to file
         return true;
     }
 
@@ -241,6 +243,7 @@ public class Accounts {
             return false;
         }
         account.setPassword(storage.obfuscatePassword(newPassword));  // Encode new password
+        storage.saveAccountToFile(account, username);  // Save updated account to file
         return true;
     }
 
@@ -270,6 +273,7 @@ public class Accounts {
         }
         AccountStorage storage = new AccountStorage();
         account.setPassword(storage.obfuscatePassword(newPassword));  // Encode new password
+        storage.saveAccountToFile(account, username);  // Save updated account to file
         return true;
     }
 
