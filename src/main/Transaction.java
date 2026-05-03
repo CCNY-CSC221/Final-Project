@@ -15,7 +15,7 @@ final class Transaction implements Comparable<Transaction> {
     // Income
     "Compensation", "Allowance", "Investments", "Other",
     // Expenses
-    "Home", "Utilities", "Food", "Appearance", "Work", "Education", "Transportation"
+    "Home", "Utilities", "Food", "Appearance", "Work", "Education", "Transportation", "Entertainment", "Professional Services" , "Other"
 );
 	private float amount;
 	private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("MM/dd/yyyy");
