@@ -19,38 +19,33 @@ public class Insights {
 	 */
 	public Map<String, Float> analyzeDeficit(TransactionLedger ledger, List<String> targetCategories) {
 		Map<String, Float> reductionSuggestions = new HashMap<>();
-		if (ledger == null || targetCategories == null || targetCategories.isEmpty()) {
+		if (ledger == null || targetCategories == null || targetCategories.isEmpty())
 			return reductionSuggestions;
-		}
 
 		float totalIncome = 0;
 		float totalExpense = 0;
 
-		// MANUAL CALCULATION: We check the "type" string so positive/negative signs
-		// don't break us
+		// THE DOUBLE-CHECK: Sign check OR Label check
 		for (Transaction t : ledger.getTransactions()) {
-			if ("income".equals(t.getType())) {
-				totalIncome += Math.abs(t.getAmount());
-			} else if ("expense".equals(t.getType())) {
-				totalExpense += Math.abs(t.getAmount());
+			float amount = t.getAmount();
+			if (amount < 0 || "expense".equals(t.getType())) {
+				totalExpense += Math.abs(amount);
+			} else {
+				totalIncome += Math.abs(amount);
 			}
 		}
 
 		float totalDeficit = totalExpense - totalIncome;
-
-		if (totalDeficit <= 0) {
+		if (totalDeficit <= 0)
 			return reductionSuggestions;
-		}
 
 		float cutAmountPerCategory = totalDeficit / targetCategories.size();
 		DataValidator validator = new DataValidator();
-
 		for (String category : targetCategories) {
 			if (validator.isValidCategory(category)) {
 				reductionSuggestions.put(category, cutAmountPerCategory);
 			}
 		}
-
 		return reductionSuggestions;
 	}
 
@@ -65,24 +60,22 @@ public class Insights {
 		float totalExpenses = 0.0f;
 		Map<String, Float> expenseTotals = new HashMap<>();
 
-		// Filter for ONLY expenses and use absolute values
 		for (Transaction t : ledger.getTransactions()) {
-			if ("expense".equals(t.getType()) && !this.excludedCategories.contains(t.getCategory())) {
-				float amount = Math.abs(t.getAmount());
-				totalExpenses += amount;
-				expenseTotals.put(t.getCategory(), expenseTotals.getOrDefault(t.getCategory(), 0f) + amount);
+			float amount = t.getAmount();
+			// ONLY count it if it's an expense (sign or label)
+			if ((amount < 0 || "expense".equals(t.getType())) && !this.excludedCategories.contains(t.getCategory())) {
+				float absAmount = Math.abs(amount);
+				totalExpenses += absAmount;
+				expenseTotals.put(t.getCategory(), expenseTotals.getOrDefault(t.getCategory(), 0f) + absAmount);
 			}
 		}
 
-		if (totalExpenses == 0.0f) {
+		if (totalExpenses == 0.0f)
 			return percentages;
-		}
 
 		for (Map.Entry<String, Float> entry : expenseTotals.entrySet()) {
-			float percentage = (entry.getValue() / totalExpenses) * 100f;
-			percentages.put(entry.getKey(), percentage);
+			percentages.put(entry.getKey(), (entry.getValue() / totalExpenses) * 100f);
 		}
-
 		return percentages;
 	}
 
@@ -174,7 +167,12 @@ public class Insights {
 		List<String> targetCategories = new ArrayList<>();
 		// We loop through transactions to make sure we ONLY analyze spending categories
 		for (Transaction t : ledger.getTransactions()) {
-			if ("expense".equals(t.getType())) {
+			float amount = t.getAmount();
+
+			// DOUBLE-CHECK: Identify as expense if amount is negative OR type is "expense"
+			// This ensures compatibility with both the storage team's rules and the test
+			// data.
+			if (amount < 0 || "expense".equals(t.getType())) {
 				if (!targetCategories.contains(t.getCategory())) {
 					targetCategories.add(t.getCategory());
 				}
