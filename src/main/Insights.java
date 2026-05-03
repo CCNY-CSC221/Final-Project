@@ -67,7 +67,7 @@ public class Insights {
 			String category = entry.getKey();
 			float totalAmount = entry.getValue();
 
-			if (totalAmount < 0 && !this.excludedCategories.contains(category)) {
+			if (!this.excludedCategories.contains(category)) {
 				totalExpenses += Math.abs(totalAmount);
 			}
 		}
@@ -79,14 +79,15 @@ public class Insights {
 
 		// Calculate percentage for each valid category
 		for (Map.Entry<String, Float> entry : categoryTotals.entrySet()) {
-			String category = entry.getKey();
-			float totalAmount = entry.getValue();
+		    String category = entry.getKey();
+		    float totalAmount = entry.getValue();
 
-			if (totalAmount < 0 && !this.excludedCategories.contains(category)) {
-				float categoryTotal = Math.abs(totalAmount);
-				float percentage = (categoryTotal / totalExpenses) * 100f;
-				percentages.put(category, percentage);
-			}
+		    // Remove the "totalAmount < 0" check
+		    if (!this.excludedCategories.contains(category)) {
+		        float categoryTotal = Math.abs(totalAmount);
+		        float percentage = (categoryTotal / totalExpenses) * 100f;
+		        percentages.put(category, percentage);
+		    }
 		}
 
 		return percentages;
@@ -142,9 +143,7 @@ public class Insights {
 		for (String category : targetCategories) {// Adding expenses
 			if (expenseCategories.containsKey(category)) {
 				float amount = expenseCategories.get(category);
-				if (amount < 0) {
-					totalPerCategory += Math.abs(amount);
-				}
+				totalPerCategory += Math.abs(amount); // Use absolute value regardless of sign
 			}
 		}
 
@@ -155,13 +154,10 @@ public class Insights {
 		for (String category : targetCategories) {
 			if (expenseCategories.containsKey(category)) {
 				float amount = expenseCategories.get(category);
-				if (amount < 0) {
-					float percentageWeight = Math.abs(amount) / totalPerCategory; // Find the amount that the category
-																					// takes.
-					float money = surplus * percentageWeight; // Multiply our surplus by that weight to determine how
-																// much is spent on the category.
-					analysis.put(category, money);
-				}
+				float percentageWeight = Math.abs(amount) / totalPerCategory; // Find the amount that the category																	// takes.
+				float money = surplus * percentageWeight; // Multiply our surplus by that weight to determine how
+				analysis.put(category, money);
+				
 			}
 		}
 		return analysis;
@@ -185,11 +181,9 @@ public class Insights {
 		List<String> targetCategories = new ArrayList<>();// New ArrayList for categories we want to store.
 
 		for (String category : categoryTotals.keySet()) {
-			float amount = categoryTotals.get(category);// Retrieves expenses to be filtered.
-
-			if (amount < 0) {// Filters out expenses
-				targetCategories.add(category);// If its not an expense, it adds it to the ArrayList.
-			}
+			// If the storage team's map only includes expenses, add them all.
+		    // Otherwise, we just need to make sure we aren't adding income.
+		    targetCategories.add(category);
 		}
 
 		Map<String, Float> surplus = analyzeSurplus(ledger, targetCategories);// run analyze surplus.
