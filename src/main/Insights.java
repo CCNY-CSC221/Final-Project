@@ -26,13 +26,12 @@ public class Insights {
 		float totalIncome = 0;
 		float totalExpense = 0;
 
-		// We manually loop to calculate totals. This ensures we catch expenses
-		// even if the Storage Team uses positive integers.
+		// We calculate totals manually to handle positive/negative sign inconsistencies
 		for (Transaction t : ledger.getTransactions()) {
 			float amount = t.getAmount();
 			String type = t.getType();
 
-			// Use equalsIgnoreCase to be safe against CSV capitalization
+			// Logic: If negative (Storage rule) OR labeled "expense" (Test data)
 			if (amount < 0 || "expense".equalsIgnoreCase(type)) {
 				totalExpense += Math.abs(amount);
 			} else if ("income".equalsIgnoreCase(type)) {
@@ -40,19 +39,21 @@ public class Insights {
 			}
 		}
 
-		// Calculate the gap
 		float totalDeficit = totalExpense - totalIncome;
 
-		// DEBUG PRINT: This will help you explain the math during the demo!
-		// System.out.println("DEBUG: Exp: " + totalExpense + " | Inc: " + totalIncome +
-		// " | Def: " + totalDeficit);
+		// DEBUG: Keep these for the demo so you can explain "No Data" if a surplus
+		// exists
+		System.out.println("--- Calculation Debug ---");
+		System.out.println("Total Income:  $" + totalIncome);
+		System.out.println("Total Expense: $" + totalExpense);
+		System.out.println("Net Deficit:   $" + totalDeficit);
+		System.out.println("-------------------------");
 
-		// If income is higher than expenses, there is no deficit to analyze.
+		// If income >= expenses, there is no deficit to suggest cuts for
 		if (totalDeficit <= 0) {
 			return reductionSuggestions;
 		}
 
-		// Proportional Reduction Logic
 		float cutAmountPerCategory = totalDeficit / targetCategories.size();
 		DataValidator validator = new DataValidator();
 
