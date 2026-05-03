@@ -19,33 +19,49 @@ public class Insights {
 	 */
 	public Map<String, Float> analyzeDeficit(TransactionLedger ledger, List<String> targetCategories) {
 		Map<String, Float> reductionSuggestions = new HashMap<>();
-		if (ledger == null || targetCategories == null || targetCategories.isEmpty())
+		if (ledger == null || targetCategories == null || targetCategories.isEmpty()) {
 			return reductionSuggestions;
+		}
 
 		float totalIncome = 0;
 		float totalExpense = 0;
 
-		// THE DOUBLE-CHECK: Sign check OR Label check
+		// We manually loop to calculate totals. This ensures we catch expenses
+		// even if the Storage Team uses positive integers.
 		for (Transaction t : ledger.getTransactions()) {
 			float amount = t.getAmount();
-			if (amount < 0 || "expense".equals(t.getType())) {
+			String type = t.getType();
+
+			// Use equalsIgnoreCase to be safe against CSV capitalization
+			if (amount < 0 || "expense".equalsIgnoreCase(type)) {
 				totalExpense += Math.abs(amount);
-			} else {
+			} else if ("income".equalsIgnoreCase(type)) {
 				totalIncome += Math.abs(amount);
 			}
 		}
 
+		// Calculate the gap
 		float totalDeficit = totalExpense - totalIncome;
-		if (totalDeficit <= 0)
-			return reductionSuggestions;
 
+		// DEBUG PRINT: This will help you explain the math during the demo!
+		// System.out.println("DEBUG: Exp: " + totalExpense + " | Inc: " + totalIncome +
+		// " | Def: " + totalDeficit);
+
+		// If income is higher than expenses, there is no deficit to analyze.
+		if (totalDeficit <= 0) {
+			return reductionSuggestions;
+		}
+
+		// Proportional Reduction Logic
 		float cutAmountPerCategory = totalDeficit / targetCategories.size();
 		DataValidator validator = new DataValidator();
+
 		for (String category : targetCategories) {
 			if (validator.isValidCategory(category)) {
 				reductionSuggestions.put(category, cutAmountPerCategory);
 			}
 		}
+
 		return reductionSuggestions;
 	}
 
