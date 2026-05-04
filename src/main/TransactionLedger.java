@@ -194,7 +194,7 @@ final class TransactionLedger implements Comparable<TransactionLedger> {
 				netIncome += transaction.getAmount();
             }
 			if ("expense".equals(transaction.getType())) {
-				netIncome -= transaction.getAmount();
+				netIncome += transaction.getAmount();
 			}
 		}
 		
