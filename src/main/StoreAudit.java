@@ -37,7 +37,7 @@ public class StoreAudit {
     /**
      * Saves the generated audit report for a user and year.
      *
-     * @paraim username the username associated with the audit
+     * @param username the username associated with the audit
      * @param year the calendar year selected for audit
      * @param report the audit report content to save
      * @return true if the audit report input is valid for saving; false otherwise
