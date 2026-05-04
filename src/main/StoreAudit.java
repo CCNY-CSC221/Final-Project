@@ -23,7 +23,7 @@ public class StoreAudit {
      * as the nevessary parent directories. 
      * using {@link java.io.File#mkdirs()}.
      *
-     * @author Thierno Diallo & Zeferino Franco Salgado
+     * @author Thierno Diallo and Zeferino Franco Salgado
      */
     public StoreAudit() {
         try {
@@ -82,7 +82,7 @@ public class StoreAudit {
      * @return {@code true} if at least one file was successfully deleted; {@code false}
      * if no matching files were found, deletion failed, or input validation failed.
      *
-     * @author Thierno Diallo & Zeferino Franco Salgado
+     * @author Thierno Diallo and Zeferino Franco Salgado
      */
     public boolean purgeRecords(String username, String timeframe) {
         if (username == null || username.trim().isEmpty() || timeframe == null) {
