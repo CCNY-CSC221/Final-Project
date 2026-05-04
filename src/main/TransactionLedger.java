@@ -188,14 +188,8 @@ final class TransactionLedger implements Comparable<TransactionLedger> {
 		for (Transaction transaction : this.transactions) {
 			if (transaction.getDate().getMonthValue() != month) {
 				continue;
-			}
-			
-			if ("income".equals(transaction.getType())) {
+			}		
 				netIncome += transaction.getAmount();
-            }
-			if ("expense".equals(transaction.getType())) {
-				netIncome -= transaction.getAmount();
-			}
 		}
 		
 		return netIncome;
