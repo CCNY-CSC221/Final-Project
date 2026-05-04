@@ -19,9 +19,8 @@ public class StoreAudit {
 
     /**
      * Initializes the audit directory if it doesn't exist. 
-     * Uses {@link Files#createDirectories(Path)} to create {@link Files#createDirectories(Path)} as well
-     * as the nevessary parent directories. 
-     * using {@link java.io.File#mkdirs()}.
+     * Uses {@link java.nio.file.Files#createDirectories(java.nio.file.Path, java.nio.file.attribute.FileAttribute...)}
+     * to create the directory and any necessary parent directories.
      *
      * @author Thierno Diallo
      * @author Zeferino Franco Salgado
