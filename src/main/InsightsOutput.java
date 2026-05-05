@@ -25,7 +25,7 @@ public class InsightsOutput {
 
         for (Map.Entry<String, Float> entry : reportData.entrySet()) {
             // Uses camelCase for variables and printf for formatting 
-            System.out.printf("%-20s $%10.2f%n", entry.getKey(), entry.getValue());
+            System.out.printf("%-25s %8.2f%%%n", entry.getKey(), entry.getValue());
         }
         System.out.println("******************************************\n");
     }
