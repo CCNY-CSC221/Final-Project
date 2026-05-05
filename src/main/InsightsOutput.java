@@ -20,12 +20,12 @@ public class InsightsOutput {
             return;
         }
 
-        System.out.printf("%-20s %10s%n", "Category", "Amount");
+        System.out.printf("%-22s %10s%n", "Category", "Amount");
         System.out.println("------------------------------------------");
 
         for (Map.Entry<String, Float> entry : reportData.entrySet()) {
             // Uses camelCase for variables and printf for formatting 
-            System.out.printf("%-20s $%10.2f%n", entry.getKey(), entry.getValue());
+            System.out.printf("%-22s $%9.2f%n", entry.getKey(), entry.getValue());
         }
         System.out.println("******************************************\n");
     }
