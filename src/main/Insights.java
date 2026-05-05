@@ -29,48 +29,48 @@ public class Insights {
 	 */
 	public Map<String, Float> analyzeDeficit(TransactionLedger ledger, List<String> targetCategories) {
 		Map<String, Float> reductionSuggestions = new HashMap<>();
-	    
-	    // Basic safety check for input
-	    if (ledger == null || targetCategories == null || targetCategories.isEmpty()) {
-	        return reductionSuggestions;
-	    }
 
-	    float totalIncome = 0;
-	    float totalExpense = 0;
-	    Map<String, Float> categoryTotals = ledger.getCategoryTotals();
+		// Basic safety check for input
+		if (ledger == null || targetCategories == null || targetCategories.isEmpty()) {
+			return reductionSuggestions;
+		}
 
-	    // Calculate total income and expenses
-	    for (Transaction t : ledger.getTransactions()) {
-	        if (isExpense(t)) {
-	            totalExpense += Math.abs(t.getAmount());
-	        } else if ("income".equalsIgnoreCase(t.getType())) {
-	            totalIncome += Math.abs(t.getAmount());
-	        }
-	    }
+		float totalIncome = 0;
+		float totalExpense = 0;
+		Map<String, Float> categoryTotals = ledger.getCategoryTotals();
 
-	    // Calculate the gap between spending and earning
-	    float totalDeficit = totalExpense - totalIncome;
+		// Calculate total income and expenses
+		for (Transaction t : ledger.getTransactions()) {
+			if (isExpense(t)) {
+				totalExpense += Math.abs(t.getAmount());
+			} else if ("income".equalsIgnoreCase(t.getType())) {
+				totalIncome += Math.abs(t.getAmount());
+			}
+		}
 
-	    // If there is no debt (Surplus), show saving advice instead of an empty screen
-	    if (totalDeficit <= 0) {
-	        return analyzeSurplus(ledger, targetCategories);
-	    }
+		// Calculate the gap between spending and earning
+		float totalDeficit = totalExpense - totalIncome;
 
-	    DataValidator validator = new DataValidator();
-	    
-	    // Suggest cuts based on how much was actually spent in each category
-	    for (String category : targetCategories) {
-	        if (validator.isValidCategory(category)) {
-	            float categorySpent = categoryTotals.getOrDefault(category, 0f);
-	            
-	            // Proportional math: more spending = higher suggested cut
-	            float proportionalCut = (Math.abs(categorySpent) / totalExpense) * totalDeficit;
-	            
-	            reductionSuggestions.put(category, proportionalCut);
-	        }
-	    }
-	    
-	    return reductionSuggestions;
+		// If there is no debt (Surplus), show saving advice instead of an empty screen
+		if (totalDeficit <= 0) {
+			return analyzeSurplus(ledger, targetCategories);
+		}
+
+		DataValidator validator = new DataValidator();
+
+		// Suggest cuts based on how much was actually spent in each category
+		for (String category : targetCategories) {
+			if (validator.isValidCategory(category)) {
+				float categorySpent = categoryTotals.getOrDefault(category, 0f);
+
+				// Proportional math: more spending = higher suggested cut
+				float proportionalCut = (Math.abs(categorySpent) / totalExpense) * totalDeficit;
+
+				reductionSuggestions.put(category, proportionalCut);
+			}
+		}
+
+		return reductionSuggestions;
 	}
 
 	/**
@@ -194,13 +194,15 @@ public class Insights {
 		Map<String, Float> surplus = analyzeSurplus(ledger, targetCategories);// run analyze surplus.
 		Map<String, Float> deficit = analyzeDeficit(ledger, targetCategories);// run analyze defecit.
 
-		// THE FIX: Smart toggle ensures we display data even if there is a surplus
+		// Smart toggle ensures we display data even if there is a surplus
 		if (deficit.isEmpty() == false) { // if there is a deficit print it.
 			System.out.println("Deficit Analysis: ");
-			insightsOutput.displayToConsole(deficit);
+			// Updated to pass 'false' to display dollar signs ($) instead of percentages
+			insightsOutput.displayToConsole(deficit, false);
 		} else if (surplus.isEmpty() == false) { // same as before, but for surplus.
 			System.out.println("Surplus Analysis: ");
-			insightsOutput.displayToConsole(surplus);
+			// Updated to pass 'false' to display dollar signs ($) instead of percentages
+			insightsOutput.displayToConsole(surplus, false);
 		} else {
 			System.out.println("No surplus or deficit to analyze.");
 		}
