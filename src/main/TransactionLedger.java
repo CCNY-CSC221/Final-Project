@@ -1,4 +1,4 @@
-//@author Vikhor
+// @author Vikhor
 // Import external dependencies
 import java.util.ArrayList;
 import java.util.HashMap;
