@@ -29,32 +29,48 @@ public class Insights {
 	 */
 	public Map<String, Float> analyzeDeficit(TransactionLedger ledger, List<String> targetCategories) {
 		Map<String, Float> reductionSuggestions = new HashMap<>();
-		if (ledger == null || targetCategories == null || targetCategories.isEmpty())
-			return reductionSuggestions;
+	    
+	    // Basic safety check for input
+	    if (ledger == null || targetCategories == null || targetCategories.isEmpty()) {
+	        return reductionSuggestions;
+	    }
 
-		float totalIncome = 0;
-		float totalExpense = 0;
+	    float totalIncome = 0;
+	    float totalExpense = 0;
+	    Map<String, Float> categoryTotals = ledger.getCategoryTotals();
 
-		for (Transaction t : ledger.getTransactions()) {
-			if (isExpense(t)) {
-				totalExpense += Math.abs(t.getAmount());
-			} else if ("income".equalsIgnoreCase(t.getType())) {
-				totalIncome += Math.abs(t.getAmount());
-			}
-		}
+	    // Calculate total income and expenses
+	    for (Transaction t : ledger.getTransactions()) {
+	        if (isExpense(t)) {
+	            totalExpense += Math.abs(t.getAmount());
+	        } else if ("income".equalsIgnoreCase(t.getType())) {
+	            totalIncome += Math.abs(t.getAmount());
+	        }
+	    }
 
-		float totalDeficit = totalExpense - totalIncome;
-		if (totalDeficit <= 0)
-			return reductionSuggestions;
+	    // Calculate the gap between spending and earning
+	    float totalDeficit = totalExpense - totalIncome;
 
-		float cutAmountPerCategory = totalDeficit / targetCategories.size();
-		DataValidator validator = new DataValidator();
-		for (String category : targetCategories) {
-			if (validator.isValidCategory(category)) {
-				reductionSuggestions.put(category, cutAmountPerCategory);
-			}
-		}
-		return reductionSuggestions;
+	    // If there is no debt (Surplus), show saving advice instead of an empty screen
+	    if (totalDeficit <= 0) {
+	        return analyzeSurplus(ledger, targetCategories);
+	    }
+
+	    DataValidator validator = new DataValidator();
+	    
+	    // Suggest cuts based on how much was actually spent in each category
+	    for (String category : targetCategories) {
+	        if (validator.isValidCategory(category)) {
+	            float categorySpent = categoryTotals.getOrDefault(category, 0f);
+	            
+	            // Proportional math: more spending = higher suggested cut
+	            float proportionalCut = (Math.abs(categorySpent) / totalExpense) * totalDeficit;
+	            
+	            reductionSuggestions.put(category, proportionalCut);
+	        }
+	    }
+	    
+	    return reductionSuggestions;
 	}
 
 	/**
