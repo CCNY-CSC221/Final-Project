@@ -575,7 +575,7 @@ private boolean isValidYear(String yearInput) {
                         TransactionLedger ledger = getLedgerForCurrentUser(year);
 
                         Map<String, Float> percentages = insights.calculatePercentageBreakdown(ledger);
-                        insightsOutput.displayToConsole(percentages);
+                        insightsOutput.displayToConsole(percentages, true);
 
                     } catch (Exception exception) {
                         System.out.println(handleException(exception));
@@ -597,7 +597,7 @@ private boolean isValidYear(String yearInput) {
                         Map<String, Float> deficitSuggestions =
                             insights.analyzeDeficit(ledger, targetCategories);
 
-                        insightsOutput.displayToConsole(deficitSuggestions);
+                        insightsOutput.displayToConsole(deficitSuggestions, false);
 
                     } catch (Exception exception) {
                         System.out.println(handleException(exception));

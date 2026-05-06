@@ -41,14 +41,6 @@ public class InsightsOutput {
 		}
 		System.out.println("******************************************\n");
 	}
-	
-	/**
-     * Legacy method for backward compatibility with Wilson's existing code.
-     */
-    public void displayToConsole(Map<String, Float> reportData) {
-        displayToConsole(reportData, true); // Default to percentage
-    }
-
 	/**
 	 * Saves the financial analysis results into a CSV file.
 	 * 
