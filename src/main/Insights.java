@@ -177,12 +177,15 @@ public class Insights {
 	 * @param ledger The financial data to be analyzed.
 	 */
 	public void generateInsightReport(TransactionLedger ledger) {
-		InsightsOutput insightsOutput = new InsightsOutput(); // how we access methods belonging to InsightsOutput.
-		Map<String, Float> percentBreakdown = calculatePercentageBreakdown(ledger); // reference to @Wilson's method.
-		insightsOutput.displayToConsole(percentBreakdown);// Send it to InsightsOutputs for display.
+		InsightsOutput insightsOutput = new InsightsOutput();
+
+		// WILSON'S SECTION: Percentage Breakdown
+		Map<String, Float> percentBreakdown = calculatePercentageBreakdown(ledger);
+		System.out.println("Percentage of Total Spending by Category:");
+		// Explicitly pass 'true' to ensure this section shows % signs
+		insightsOutput.displayToConsole(percentBreakdown, true);
 
 		List<String> targetCategories = new ArrayList<>();
-		// We loop through transactions to make sure we ONLY analyze spending categories
 		for (Transaction t : ledger.getTransactions()) {
 			if (isExpense(t)) {
 				if (!targetCategories.contains(t.getCategory())) {
@@ -191,17 +194,17 @@ public class Insights {
 			}
 		}
 
-		Map<String, Float> surplus = analyzeSurplus(ledger, targetCategories);// run analyze surplus.
-		Map<String, Float> deficit = analyzeDeficit(ledger, targetCategories);// run analyze defecit.
+		// CLAYTON/DONNELL SECTION: Surplus and Deficit
+		Map<String, Float> surplus = analyzeSurplus(ledger, targetCategories);
+		Map<String, Float> deficit = analyzeDeficit(ledger, targetCategories);
 
-		// Smart toggle ensures we display data even if there is a surplus
-		if (deficit.isEmpty() == false) { // if there is a deficit print it.
-			System.out.println("Deficit Analysis: ");
-			// Updated to pass 'false' to display dollar signs ($) instead of percentages
+		if (!deficit.isEmpty()) {
+			System.out.println("Deficit Analysis (Suggested Cuts):");
+			// Pass 'false' to display dollar signs ($)
 			insightsOutput.displayToConsole(deficit, false);
-		} else if (surplus.isEmpty() == false) { // same as before, but for surplus.
-			System.out.println("Surplus Analysis: ");
-			// Updated to pass 'false' to display dollar signs ($) instead of percentages
+		} else if (!surplus.isEmpty()) {
+			System.out.println("Surplus Analysis (Suggested Allocation):");
+			// Pass 'false' to display dollar signs ($)
 			insightsOutput.displayToConsole(surplus, false);
 		} else {
 			System.out.println("No surplus or deficit to analyze.");
