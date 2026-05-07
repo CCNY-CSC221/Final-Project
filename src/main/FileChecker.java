@@ -37,8 +37,8 @@ public class FileChecker {
             // Create the IssueTracker to log exact failures for the Test Team
             IssueTracker tracker = new IssueTracker();
 
-            // Check header row first
-            if (!checkTopRow(rows[0])) {
+            // Check header row first using the newly renamed method
+            if (!isValidCSVHeader(rows[0])) {
                 tracker.saveError("Validation failed: Invalid header format in row 1. Expected 'Date,Category,Amount'.");
                 tracker.printResults();
                 return false;
@@ -49,7 +49,7 @@ public class FileChecker {
                 if (rows[i].trim().isEmpty()) continue; // Skip empty lines safely
                 
                 if (!checkRow(rows[i])) {
-                    // Log the exact line that broke 
+                    // Log the exact line that broke
                     tracker.saveError("Validation failed on Row " + (i + 1) + ": " + rows[i]);
                     tracker.printResults(); // Print it to the console for the Test Team
                     return false;
@@ -94,23 +94,23 @@ public class FileChecker {
 
     /**
      * Ensures the column names are in the right places.
-     * Made private to hide internal logic from other modules.
+     * Renamed and made public for the Integration Team.
      * @param headerRow The first line of the file
      * @return true if headers match expected values
      * @author Sharif
      */
-    private boolean checkTopRow(String headerRow) {
+    public boolean isValidCSVHeader(String headerRow) {
         if (headerRow == null || headerRow.trim().isEmpty()) {
             return false;
         }
-        // FIX: Remove hidden BOM, use trim() to remove hidden \r, and strip spaces
+        // Remove hidden BOM, use trim() to remove hidden return characters, and strip spaces
         String cleanHeader = headerRow.replace("\uFEFF", "").trim().replaceAll(" ", "");
         return cleanHeader.equalsIgnoreCase("Date,Category,Amount");
     }
 
     /**
      * Verifies the file is named correctly (Example: 2024.csv).
-     * @param fileName The name of the file
+     * @param fileName The name of the file (Just the name, not the full path)
      * @return true if name is valid
      * @author Sharif
      */
@@ -157,5 +157,32 @@ public class FileChecker {
         } catch (Exception e) {
             return true;
         }
+    }
+
+    /**
+     * Extracts just the file name from a long computer file path.
+     * Helpful for Integration Team when they have full C:/ paths.
+     * @param fullPath The long file path string
+     * @return Just the file name with the extension
+     * @author Sharif
+     */
+    public String getFileNameFromPath(String fullPath) {
+        if (fullPath == null) {
+            return null;
+        }
+        
+        // Change any backward Windows slashes to normal slashes to make finding it easy
+        String simplePath = fullPath.replace("\\", "/");
+        
+        // Find the location of the very last slash in the text
+        int lastSlashLocation = simplePath.lastIndexOf("/");
+        
+        // If a slash was found, cut off everything before it
+        if (lastSlashLocation != -1) {
+            return simplePath.substring(lastSlashLocation + 1);
+        }
+        
+        // If there were no slashes, it is already just a file name
+        return fullPath;
     }
 }
