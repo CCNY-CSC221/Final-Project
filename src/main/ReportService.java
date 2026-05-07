@@ -7,34 +7,19 @@
  */
 public class ReportService implements ReportGenerator {
 
-    private StorageService storageService;
-
     /**
-     * Creates a ReportService with default storage.
+     * Creates a ReportService.
      */
     public ReportService() {
-        this.storageService = new StorageService();
-    }
-       
-
-    /**
-     * Creates a ReportService with a specified storage service.
-     *
-     * @param storageService the storage service used for report data
-     */
-    public ReportService(StorageService storageService) {
-        this.storageService = storageService;
-      
     }
 
-    /**
-     * Generates an annual report for a user.
-     *
-     * @param userId the user identifier
-     * @param year the report year
-     */
-    @Override
-    public void generateAnnualReport(String userId, int year) {
+    /*
+      *Helper method to load user data and generate a report based on the specified type.
+         * @param userId the user identifier
+         * @param year the report year
+         * @param reportType the type of report to generate (e.g., "annual", "category", "monthly")
+    */
+    private void generateReport(String userId, int year, String reportType) {
 
         UserStorage user = StorageService.loadUserStorage(userId);
 
@@ -48,7 +33,21 @@ public class ReportService implements ReportGenerator {
 
         System.out.println(formatReport(data));
 
-        
+    }
+
+
+
+    /**
+     * Generates an annual report for a user.
+     *
+     * @param userId the user identifier
+     * @param year the report year
+     */
+    @Override
+    public void generateAnnualReport(String userId, int year) {
+
+        generateReport(userId, year,"annual");
+
         
     }
 
@@ -61,17 +60,7 @@ public class ReportService implements ReportGenerator {
     @Override
     public void generateCategoryReport(String userId, int year) {
 
-        UserStorage user = StorageService.loadUserStorage(userId);
-
-        if(!user.hasLedgerForYear(year)) {
-            System.out.println("No ledger data found for user " + userId + " in year " + year);
-            return;
-        }
-        TransactionLedger ledger = user.getLedgerByYear(year);
-        
-        ReportData data = new ReportData(ledger);
-
-        System.out.println(formatReport(data));
+        generateReport(userId, year,"category");
 
         
     }
@@ -85,17 +74,8 @@ public class ReportService implements ReportGenerator {
     @Override
     public void generateMonthlySummary(String userId, int year) {
 
-        UserStorage user = StorageService.loadUserStorage(userId);
+        generateReport(userId, year,"monthly");
 
-        if(!user.hasLedgerForYear(year)) {
-            System.out.println("No ledger data found for user " + userId + " in year " + year);
-            return;
-        }
-        TransactionLedger ledger = user.getLedgerByYear(year);
-        
-        ReportData data = new ReportData(ledger);
-
-        System.out.println(formatReport(data));
     }
 
     /**
