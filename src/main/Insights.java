@@ -134,6 +134,9 @@ public class Insights {
 	 */
 	public Map<String, Float> analyzeSurplus(TransactionLedger ledger, List<String> targetCategories) {
 		Map<String, Float> analysis = new HashMap<>();
+		if (ledger == null || targetCategories == null || targetCategories.isEmpty()) {
+    		return analysis;
+		}
 		float totalIncome = 0;
 		float totalExpense = 0;
 		Map<String, Float> categoryMap = new HashMap<>();
@@ -142,7 +145,7 @@ public class Insights {
 			float amount = Math.abs(t.getAmount());
 			if ("income".equalsIgnoreCase(t.getType())) {
 				totalIncome += amount;
-			} else if (isExpense(t)) {
+			} else if (isExpense(t) && !excludedCategories.contains(t.getCategory())) {
 				totalExpense += amount;
 				categoryMap.put(t.getCategory(), categoryMap.getOrDefault(t.getCategory(), 0f) + amount);
 			}
@@ -177,6 +180,10 @@ public class Insights {
 	 * @param ledger The financial data to be analyzed.
 	 */
 	public void generateInsightReport(TransactionLedger ledger) {
+		if (ledger == null) {
+    		System.out.println("No ledger data available for insights.");
+    		return;
+		}
 		InsightsOutput insightsOutput = new InsightsOutput();
 
 		// WILSON'S SECTION: Percentage Breakdown
@@ -187,7 +194,7 @@ public class Insights {
 
 		List<String> targetCategories = new ArrayList<>();
 		for (Transaction t : ledger.getTransactions()) {
-			if (isExpense(t)) {
+			if (isExpense(t) && !excludedCategories.contains(t.getCategory())) {
 				if (!targetCategories.contains(t.getCategory())) {
 					targetCategories.add(t.getCategory());
 				}
