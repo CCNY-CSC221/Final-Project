@@ -1,5 +1,4 @@
 import java.io.IOException;
-//TODO add imports when Storage config is done
 /**
  * Controller responsible for coordinating report generation and output delivery.
  * <p>
@@ -26,7 +25,10 @@ public class ReportController {
      */
 		
     public ReportController(ReportService reportService, OutputWriter outputWriter) {
-    	this.reportService = reportService;
+    	if (reportService  == null) throw new IllegalArgumentException("reportService must not be null");
+		if (outputWriter == null) throw new IllegalArgumentException("outputWriter must not be null");
+		
+		this.reportService = reportService;
     	this.outputWriter = outputWriter;
     }
 
@@ -50,20 +52,29 @@ public class ReportController {
 		// Since ReportService prints internally, we delegate and let selectOutput
 		// handle any additional routing
 		OutputWriter writer = selectOutput(outputType);
+
+		if (reportType == null || reportType.isBlank()){
+			System.out.println("Unknown report type: " + reportType);
+			return;
+		}
 		
-		switch ( reportType.toLowerCase()){
+		String report;
+		switch (reportType.toLowerCase()){
 			case "annual":
-				reportService.generateAnnualReport(userId, year);
+				report = reportService.generateAnnualReport(userId, year);
 				break;
 			case "category":
-				reportService.generateCategoryReport(userId, year);
+				report = reportService.generateCategoryReport(userId, year);
 				break;
 			case "monthly":
-				reportService.generateMonthlySummary(userId, year);
+				report = reportService.generateMonthlySummary(userId, year);
 				break;
 			default:
-				System.out.println("Unkown report type: " + reportType);
+				System.out.println("Unknown report type: " + reportType);
+				return;
 		}
+
+		handleWriteReport(report, outputType, DEFAULT_FILE_PATH, false);
     }
 
 	 /**
@@ -82,7 +93,9 @@ public class ReportController {
     public void handleWriteReport(String report, String outputType, String filePath, boolean append) {
         OutputWriter writer = selectOutput(outputType);
 
-        switch (outputType.toLowerCase()) {
+		String resolvedType = (outputType == null || outputType.isBlank()) ? "console" : outputType.toLowerCase();
+		
+        switch (resolvedType) {
             case "file":
                 try {
                     String resolvedPath = (filePath != null && !filePath.isBlank())
@@ -109,6 +122,10 @@ public class ReportController {
      */
     
     public OutputWriter selectOutput(String outputType) {
+		if (outputType == null || outputType.isBlank()) {
+			return outputWriter; // default case falls back to console output
+		}
+		
         switch (outputType.toLowerCase()) {
             case "file":
                 return new WriterService();
