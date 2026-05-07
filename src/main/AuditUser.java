@@ -27,14 +27,26 @@ public class AuditUser {
         return true;
     }
 
-    public boolean validateUserData(String username, int year) {
-        if (!userExists(username)) {
-            logger.warning("Invalid username provided: " + username);
+    public boolean validateUserData(String userName, String password, int year) {
+        User user = userDao.getUserByUsername(userName);
+        if (user == null || !checkPassword(user, password)) {
             return false;
         }
 
-        if (year < 1900 || year > java.time.Year.now().getValue()) {
-            logger.warning("Invalid year provided: " + year);
+        if (year < 1900 || year > getCurrentYear()) {
+            return false;
+        }
+
+        try {
+            String basePath = StorageService.BASE_STORAGE_PATH;
+            String userStoragePath = FileFolderManager.combinePaths(basePath, userName);
+            String targetFile = Integer.toString(year) + ".csv";
+
+            File ledgerFile = new File(userStoragePath, targetFile);
+            if (!ledgerFile.exists()) {
+                return false;
+            }
+        } catch (Exception e) {
             return false;
         }
 
@@ -64,7 +76,7 @@ public class AuditUser {
                     username,
                     year,
                     checkBudget(new Budget(username, year, 1000.0))
-            );
+                    );
         } catch (Exception e) {
             logger.severe("Error generating report: " + e.getMessage());
             return "Failed to generate audit report";
@@ -95,3 +107,4 @@ public class AuditUser {
         }
     }
 }
+
