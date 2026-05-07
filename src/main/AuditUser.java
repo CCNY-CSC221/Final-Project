@@ -27,26 +27,25 @@ public class AuditUser {
         return true;
     }
 
-    public boolean validateUserData(String userName, String password, int year) {
-        User user = userDao.getUserByUsername(userName);
-        if (user == null || !checkPassword(user, password)) {
+    public boolean validateUserData(String username, int year) {
+        if (!userExists(username)) {
+            logger.warning("Invalid username provided: " + username);
             return false;
         }
 
-        if (year < 1900 || year > getCurrentYear()) {
+        if (year < 1900 || year > java.time.Year.now().getValue()) {
+            logger.warning("Invalid year provided: " + year);
             return false;
         }
 
         try {
-            String basePath = StorageService.BASE_STORAGE_PATH;
-            String userStoragePath = FileFolderManager.combinePaths(basePath, userName);
-            String targetFile = Integer.toString(year) + ".csv";
-
-            File ledgerFile = new File(userStoragePath, targetFile);
-            if (!ledgerFile.exists()) {
+            UserStorage userStorage = StorageService.loadUserStorage(username);
+            if (!userStorage.hasLedgerForYear(year)) {
+                logger.warning("No ledger data found for user " + username + " in year " + year);
                 return false;
             }
         } catch (Exception e) {
+            logger.warning("Could not validate audit data for user " + username + ": " + e.getMessage());
             return false;
         }
 
@@ -107,4 +106,3 @@ public class AuditUser {
         }
     }
 }
-
