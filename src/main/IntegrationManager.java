@@ -293,7 +293,7 @@ public class IntegrationManager {
             }
 
             // Extract file name from full path so validation checks only "2024.csv"
-            String fileName = getFileNameFromPathTemporary(filePath);
+            String fileName = fileChecker.getFileNameFromPath(filePath);
 
             // Check that the file name matches the expected format, like 2024.csv
             if (!fileChecker.checkFileName(fileName.toLowerCase())) {
@@ -314,7 +314,7 @@ public class IntegrationManager {
             // Remove hidden BOM characters and split the CSV into rows
             String[] rows = csvText.replace("\uFEFF", "").split("\\R");
 
-            if (rows.length == 0 || !isValidCSVHeaderTemporary(rows[0])) {
+            if (rows.length == 0 || !fileChecker.isValidCSVHeader(rows[0])) {
                 System.out.println("Invalid CSV header. Expected: Date,Category,Amount");
                 return;
             }
@@ -941,49 +941,6 @@ public class IntegrationManager {
         }
 
         return "Error handled: " + message;
-    }
-
-    /**
-     * Temporarily gets the file name from a full file path.
-     * This should be moved into the validation or file utility module later.
-     *
-     * @param filePath the full file path
-     * @return the file name only
-     * @author Dmytro Shumlianskyi
-     */
-    private String getFileNameFromPathTemporary(String filePath) {
-        if (filePath == null || filePath.isEmpty()) {
-            return "";
-        }
-
-        int slashIndex = filePath.lastIndexOf("/");
-        int backslashIndex = filePath.lastIndexOf("\\");
-        int separatorIndex = Math.max(slashIndex, backslashIndex);
-
-        if (separatorIndex == -1) {
-            return filePath;
-        }
-
-        return filePath.substring(separatorIndex + 1);
-    }
-
-   
-    /**
-     * Temporarily checks if the CSV header matches the expected format.
-     * This should be moved into the validation module later.
-     *
-     * @param headerRow the first row of the CSV file
-     * @return true if the header is valid; false otherwise
-     * @author Dmytro Shumlianskyi
-     */
-    private boolean isValidCSVHeaderTemporary(String headerRow) {
-        if (headerRow == null || headerRow.trim().isEmpty()) {
-            return false;
-        }
-
-        String cleanHeader = headerRow.replace("\uFEFF", "").trim().replaceAll(" ", "");
-
-        return cleanHeader.equalsIgnoreCase("Date,Category,Amount");
     }
 
 }
