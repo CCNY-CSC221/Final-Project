@@ -778,7 +778,17 @@ private boolean isValidYear(String yearInput) {
                     String deletePassword = frontendConnector.readTextInput();
 
                     if (accountManager.deleteAccount(currentUsername, deletePassword)) {
+
+                        boolean auditFilesDeleted = storeAudit.deleteUserAuditFiles(currentUsername);
+                        
                         System.out.println("Account deleted successfully.");
+
+                        if (auditFilesDeleted) {
+                            System.out.println("User audit files were deleted successfully.");
+                        } else {
+                            System.out.println("No audit files were found for this user.");
+                        }
+
                         currentUsername = "";
                         inAccountSettings = false;
 
