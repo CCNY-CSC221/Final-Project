@@ -204,4 +204,29 @@ public class FrontendConnector {
     public String readTextInput() {
         return scanner.nextLine().trim();
     }
+
+    /**
+     * Asks the user a yes/no question.
+     *
+     * @param message the question shown to the user
+     * @return true for yes; false for no
+     * @author Dmytro Shumlianskyi
+     */
+    public boolean askYesNo(String message) {
+        while (true) {
+            System.out.print(message + " (y/n): ");
+            String choice = readTextInput().trim().toLowerCase();
+        
+
+            if (choice.equals("y") || choice.equals("yes")) {
+                return true;
+            }
+
+            if (choice.equals("n") || choice.equals("no")) {
+                return false;
+            }
+
+            System.out.println("Invalid input. Please enter y or n.");
+        }
+    }
 }

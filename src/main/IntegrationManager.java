@@ -273,7 +273,10 @@ public class IntegrationManager {
     }
 
     /**
-     * Handles the Load Yearly CSV menu option.
+     * Handles loading a yearly CSV file for the current user.
+     * 
+     * Checks the file name, reads the CSV file, separates valid and invalid rows,
+     * asks the user what to do with invalid data, and saves the final ledger.
      *
      * @author Khattab Sulaiman
      * @author Dmytro Shumlianskyi
@@ -283,23 +286,96 @@ public class IntegrationManager {
             System.out.print("Enter yearly CSV file path: ");
             String filePath = frontendConnector.readTextInput();
 
-            boolean filePassed = fileChecker.startFileCheck(filePath);
-
-            if (!filePassed) {
-                System.out.println("CSV file failed validation. Please check the file and try again.");
+            // Check that the file path points to a real file before trying to read it
+            if (!FileFolderManager.isFileExists(filePath)) {
+                System.out.println("CSV file was not found. Please check the file path.");
                 return;
             }
+
+            // Extract file name from full path so validation checks only "2024.csv"
+            String fileName = getFileNameFromPathTemporary(filePath);
+
+            // Check that the file name matches the expected format, like 2024.csv
+            if (!fileChecker.checkFileName(fileName.toLowerCase())) {
+                System.out.println("Invalid file name. Use a file name like 2024.csv");
+                return;
+            }
+
+            // The year comes from the file name, for example 2024.csv gives 2024
+            int year = Integer.parseInt(fileName.substring(0, 4));
 
             String csvText = FileFolderManager.readFile(filePath);
-            TransactionLedger ledger = TransactionLedger.createFromCSVText(csvText);
 
-            if (ledger.getTransactions().isEmpty()) {
-                System.out.println("CSV file has no transaction data.");
+            if (csvText == null || csvText.trim().isEmpty()) {
+                System.out.println("CSV file is empty.");
                 return;
             }
 
-            int year = ledger.getTransactions().get(0).getDate().getYear();
+            // Remove hidden BOM characters and split the CSV into rows
+            String[] rows = csvText.replace("\uFEFF", "").split("\\R");
 
+            if (rows.length == 0 || !isValidCSVHeaderTemporary(rows[0])) {
+                System.out.println("Invalid CSV header. Expected: Date,Category,Amount");
+                return;
+            }
+
+            // Build a clean CSV string using only valid rows
+            StringBuilder validCSVText = new StringBuilder();
+            validCSVText.append("Date,Category,Amount\n");
+
+            List<String> invalidRows = new ArrayList<String>();
+
+            // Validate each data row after the header
+            for (int i = 1; i < rows.length; i++) {
+                String row = rows[i].trim();
+
+                if (row.isEmpty()) {
+                    continue;
+                }
+
+                try {
+                    Transaction transaction = Transaction.createFromCSVText(row);
+                    
+                    // The transaction year must match the year in the file name
+                    if (!fileChecker.checkYear(year, transaction.getDate().getYear())) {
+                        invalidRows.add("Row " + (i + 1) + ": " + row);
+                        continue;
+                    }
+
+                    validCSVText.append(row).append("\n");
+
+                } catch (Exception exception) {
+                    // Any row that cannot become a Transaction is treated as invalid
+                    invalidRows.add("Row " + (i + 1) + ": " + row);
+                }
+            }
+
+            // If invalid rows exist, the user can either ignore them or cancel the load and fix the CSV manually
+            if (!invalidRows.isEmpty()) {
+                System.out.println("The CSV file contains invalid data records:");
+
+                for (String invalidRow : invalidRows) {
+                    System.out.println(invalidRow);
+                }
+
+                boolean ignoreInvalidRows = frontendConnector.askYesNo(
+                    "Do you want to ignore the invalid rows and continue?"
+                );
+
+                if (!ignoreInvalidRows) {
+                    System.out.println("CSV load cancelled. Please fix the file and try again.");
+                    return;
+                }
+            }
+
+            TransactionLedger ledger = TransactionLedger.createFromCSVText(validCSVText.toString());
+
+            if (ledger.getTransactions().isEmpty()) {
+                System.out.println("CSV file has no valid transaction data.");
+                return;
+            }
+
+            // Make sure the base storage folder and user folder exist before saving
             if (!FileFolderManager.isFolderExists(StorageService.BASE_STORAGE_PATH)) {
                 FileFolderManager.createFolder(StorageService.BASE_STORAGE_PATH);
             }
@@ -310,172 +386,187 @@ public class IntegrationManager {
 
             UserStorage userStorage = StorageService.loadUserStorage(currentUsername);
 
+            // If this user already has data for the same year, ask before deleting and replacing the old ledger
             if (userStorage.hasLedgerForYear(year)) {
                 System.out.println("Data for year " + year + " already exists.");
-                System.out.println("Delete that year first if you want to replace it.");
-                return;
+
+                boolean overwrite = frontendConnector.askYesNo(
+                    "Do you want to overwrite the existing year data?"
+                );
+
+                if (!overwrite) {
+                    System.out.println("CSV load cancelled. Existing data was not changed.");
+                    return;
+                }
+
+                userStorage.delLedger(year);
             }
 
+            // Save the new or overwritten year data
             userStorage.addLedger(ledger);
             StorageService.saveUserStorage(userStorage);
 
-            System.out.println("CSV file loaded and saved successfully for year " + year + ".");
+            if (invalidRows.isEmpty()) {
+                System.out.println("CSV file loaded and saved successfully for year " + year + ".");
+            } else {
+                System.out.println("CSV file loaded for year " + year + " with invalid rows ignored.");
+            }
 
         } catch (Exception exception) {
             System.out.println(handleException(exception));
         }
     }
 
-   /**
- * Handles the Manage Year Data menu flow.
- *
- * @author Mohamed Reda
- */
-private void handleYearDataMenu() {
-    boolean inYearDataMenu = true;
+    /**
+     * Handles the Manage Year Data menu flow.
+     *
+     * @author Mohamed Reda
+     */
+    private void handleYearDataMenu() {
+        boolean inYearDataMenu = true;
 
-    while (inYearDataMenu) {
-        int option = frontendConnector.showYearDataMenu();
+        while (inYearDataMenu) {
+            int option = frontendConnector.showYearDataMenu();
 
-        switch (option) {
-            case 1:
-                viewLoadedYearData();
-                break;
+            switch (option) {
+                case 1:
+                    viewLoadedYearData();
+                    break;
 
-            case 2:
-                deleteYearData();
-                break;
+                case 2:
+                    deleteYearData();
+                    break;
 
-            case 3:
-                inYearDataMenu = false;
-                System.out.println("Returning to main menu.");
-                break;
+                case 3:
+                    inYearDataMenu = false;
+                    System.out.println("Returning to main menu.");
+                    break;
 
-            default:
-                System.out.println("Invalid option. Try again.");
-                break;
+                default:
+                    System.out.println("Invalid option. Try again.");
+                    break;
+            }
         }
     }
-}
 
-/**
- * Displays all yearly CSV files saved for the currently logged-in user.
- *
- * @author Mohamed Reda
- */
-private void viewLoadedYearData() {
-    try {
-        if (currentUsername == null || currentUsername.isEmpty()) {
-            System.out.println("No user is currently logged in.");
-            return;
+    /**
+     * Displays all yearly CSV files saved for the currently logged-in user.
+     *
+     * @author Mohamed Reda
+     */
+    private void viewLoadedYearData() {
+        try {
+            if (currentUsername == null || currentUsername.isEmpty()) {
+                System.out.println("No user is currently logged in.");
+                return;
+            }
+
+            if (!StorageService.isUserStorageSpaceExists(currentUsername)) {
+                System.out.println("No saved yearly data found for this user.");
+                return;
+            }
+
+            String userStoragePath = FileFolderManager.combinePaths(
+                StorageService.BASE_STORAGE_PATH,
+                currentUsername
+            );
+
+            String[] files = FileFolderManager.listFilesInFolder(userStoragePath);
+
+            boolean foundYearData = false;
+
+            System.out.println("\nLoaded yearly data:");
+
+            for (String fileName : files) {
+                if (fileName.endsWith(".csv")) {
+                    String year = fileName.substring(0, fileName.length() - 4);
+                    System.out.println("- " + year);
+                    foundYearData = true;
+                }
+            }
+
+            if (!foundYearData) {
+                System.out.println("No yearly CSV files are currently saved.");
+            }
+
+        } catch (Exception exception) {
+            System.out.println(handleException(exception));
+        }
+    }
+
+    /**
+     * Deletes a yearly CSV file for the currently logged-in user.
+     *
+     * @author Mohamed Reda
+     */
+    private void deleteYearData() {
+        try {
+            if (currentUsername == null || currentUsername.isEmpty()) {
+                System.out.println("No user is currently logged in.");
+                return;
+            }
+
+            if (!StorageService.isUserStorageSpaceExists(currentUsername)) {
+                System.out.println("No saved yearly data found for this user.");
+                return;
+            }
+
+            System.out.print("Enter the year data you want to delete: ");
+            String yearInput = frontendConnector.readTextInput();
+
+            if (!isValidYear(yearInput)) {
+                System.out.println("Invalid year. Please enter a 4-digit year.");
+                return;
+            }
+
+            String fileName = yearInput + ".csv";
+
+            String userStoragePath = FileFolderManager.combinePaths(
+                StorageService.BASE_STORAGE_PATH,
+                currentUsername
+            );
+
+            String yearlyFilePath = FileFolderManager.combinePaths(
+                userStoragePath,
+                fileName
+            );
+
+            if (!FileFolderManager.isFileExists(yearlyFilePath)) {
+                System.out.println("No saved data found for year " + yearInput + ".");
+                return;
+            }
+
+            FileFolderManager.deleteFile(yearlyFilePath);
+
+            System.out.println("Year data for " + yearInput + " was deleted successfully.");
+
+        } catch (Exception exception) {
+            System.out.println(handleException(exception));
+        }
+    }
+
+    /**
+     * Checks if the user entered a valid 4-digit year.
+     *
+     * @param yearInput the year entered by the user
+     * @return true if the input is a valid year; false otherwise
+     * @author Mohamed Reda
+     */
+    private boolean isValidYear(String yearInput) {
+        if (yearInput == null || yearInput.length() != 4) {
+            return false;
         }
 
-        if (!StorageService.isUserStorageSpaceExists(currentUsername)) {
-            System.out.println("No saved yearly data found for this user.");
-            return;
-        }
-
-        String userStoragePath = FileFolderManager.combinePaths(
-            StorageService.BASE_STORAGE_PATH,
-            currentUsername
-        );
-
-        String[] files = FileFolderManager.listFilesInFolder(userStoragePath);
-
-        boolean foundYearData = false;
-
-        System.out.println("\nLoaded yearly data:");
-
-        for (String fileName : files) {
-            if (fileName.endsWith(".csv")) {
-                String year = fileName.substring(0, fileName.length() - 4);
-                System.out.println("- " + year);
-                foundYearData = true;
+        for (int i = 0; i < yearInput.length(); i++) {
+            if (!Character.isDigit(yearInput.charAt(i))) {
+                return false;
             }
         }
 
-        if (!foundYearData) {
-            System.out.println("No yearly CSV files are currently saved.");
-        }
+        int year = Integer.parseInt(yearInput);
 
-    } catch (Exception exception) {
-        System.out.println(handleException(exception));
+        return year >= 1900 && year <= 2100;
     }
-}
-
-/**
- * Deletes a yearly CSV file for the currently logged-in user.
- *
- * @author Mohamed Reda
- */
-private void deleteYearData() {
-    try {
-        if (currentUsername == null || currentUsername.isEmpty()) {
-            System.out.println("No user is currently logged in.");
-            return;
-        }
-
-        if (!StorageService.isUserStorageSpaceExists(currentUsername)) {
-            System.out.println("No saved yearly data found for this user.");
-            return;
-        }
-
-        System.out.print("Enter the year data you want to delete: ");
-        String yearInput = frontendConnector.readTextInput();
-
-        if (!isValidYear(yearInput)) {
-            System.out.println("Invalid year. Please enter a 4-digit year.");
-            return;
-        }
-
-        String fileName = yearInput + ".csv";
-
-        String userStoragePath = FileFolderManager.combinePaths(
-            StorageService.BASE_STORAGE_PATH,
-            currentUsername
-        );
-
-        String yearlyFilePath = FileFolderManager.combinePaths(
-            userStoragePath,
-            fileName
-        );
-
-        if (!FileFolderManager.isFileExists(yearlyFilePath)) {
-            System.out.println("No saved data found for year " + yearInput + ".");
-            return;
-        }
-
-        FileFolderManager.deleteFile(yearlyFilePath);
-
-        System.out.println("Year data for " + yearInput + " was deleted successfully.");
-
-    } catch (Exception exception) {
-        System.out.println(handleException(exception));
-    }
-}
-
-/**
- * Checks if the user entered a valid 4-digit year.
- *
- * @param yearInput the year entered by the user
- * @return true if the input is a valid year; false otherwise
- * @author Mohamed Reda
- */
-private boolean isValidYear(String yearInput) {
-    if (yearInput == null || yearInput.length() != 4) {
-        return false;
-    }
-
-    for (int i = 0; i < yearInput.length(); i++) {
-        if (!Character.isDigit(yearInput.charAt(i))) {
-            return false;
-        }
-    }
-
-    int year = Integer.parseInt(yearInput);
-
-    return year >= 1900 && year <= 2100;
-}
 
     /**
      * Handles the Reports menu flow.
@@ -851,4 +942,49 @@ private boolean isValidYear(String yearInput) {
 
         return "Error handled: " + message;
     }
+
+    /**
+     * Temporarily gets the file name from a full file path.
+     * This should be moved into the validation or file utility module later.
+     *
+     * @param filePath the full file path
+     * @return the file name only
+     * @author Dmytro Shumlianskyi
+     */
+    private String getFileNameFromPathTemporary(String filePath) {
+        if (filePath == null || filePath.isEmpty()) {
+            return "";
+        }
+
+        int slashIndex = filePath.lastIndexOf("/");
+        int backslashIndex = filePath.lastIndexOf("\\");
+        int separatorIndex = Math.max(slashIndex, backslashIndex);
+
+        if (separatorIndex == -1) {
+            return filePath;
+        }
+
+        return filePath.substring(separatorIndex + 1);
+    }
+
+   
+    /**
+     * Temporarily checks if the CSV header matches the expected format.
+     * This should be moved into the validation module later.
+     *
+     * @param headerRow the first row of the CSV file
+     * @return true if the header is valid; false otherwise
+     * @author Dmytro Shumlianskyi
+     */
+    private boolean isValidCSVHeaderTemporary(String headerRow) {
+        if (headerRow == null || headerRow.trim().isEmpty()) {
+            return false;
+        }
+
+        String cleanHeader = headerRow.replace("\uFEFF", "").trim().replaceAll(" ", "");
+
+        return cleanHeader.equalsIgnoreCase("Date,Category,Amount");
+    }
+
 }
+
