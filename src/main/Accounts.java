@@ -82,29 +82,32 @@ public class Accounts {
             password == null || password.isBlank()) {
             return false;
         }
-
+    
         AccountStorage storage = new AccountStorage();
         Accounts existing = storage.loadAccountFromFile(username);
-
+    
         if (existing == null) {
             return false;
         }
-
+    
         if (!storage.obfuscatePassword(password)
                 .equals(existing.getPassword())) {
             return false;
         }
-
+    
         accounts.removeIf(account ->
-                account.getUsername().equals(username));
-
-        File file = new File("accounts/" + username + ".txt");
-        if (file.exists()) {
-            return file.delete();
-        }
-
-        return false;
+            account.getUsername().equals(username));
+    
+        // Delete account file
+        File accountFile = new File("accounts/" + username + ".txt");
+        boolean accountDeleted = accountFile.exists() && accountFile.delete();
+    
+        // Delete all associated financial data in UsersStorage/
+        StorageService.deleteUserStorageSpace(username);
+    
+        return accountDeleted;
     }
+
 
     /**
      * Reads and returns the account information for a given username.
