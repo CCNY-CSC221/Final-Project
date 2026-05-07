@@ -64,10 +64,11 @@ public class FrontendConnector {
         System.out.println("4. Run Insights");
         System.out.println("5. Run Data Audit");
         System.out.println("6. Account Settings");
-        System.out.println("7. Exit");
+        System.out.println("7. Sign Out");
+        System.out.println("8. Exit");
         System.out.print("Choose an option: ");
 
-        return readMenuOption(1, 7);
+        return readMenuOption(1, 8);
     }
 
     /**

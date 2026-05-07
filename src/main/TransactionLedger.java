@@ -1,3 +1,4 @@
+// @author Vikhor
 // Import external dependencies
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -57,7 +58,7 @@ final class TransactionLedger implements Comparable<TransactionLedger> {
     		if (lineOfText.isEmpty()) {
     			continue;
     		}
-    		if (lineOfText.trim().equals("Date,Category,Description,Amount,Type")) {
+    		if (lineOfText.trim().equals("Date,Category,Amount")) {
     		    continue;
     		}
     		
@@ -88,9 +89,9 @@ final class TransactionLedger implements Comparable<TransactionLedger> {
      * @return CSV string
      */
     public String transformToCSVText() {
-    	String text = "Date,Category,Description,Amount,Type\n";
+    	String text = "Date,Category,Amount\n";
     	for (Transaction transaction : this.transactions) {
-    		text += transaction.transformToCSVText();
+    		text += transaction.transformToCSVText() + "\n";
     	}
 		return text;
     }
@@ -165,10 +166,10 @@ final class TransactionLedger implements Comparable<TransactionLedger> {
     }
     /** @return total expense */
     public float getTotalExpense() {    	
-    	float totalExpense = 0;
+    	float totalExpense = 0f;
 		for (Transaction transaction : this.transactions) {
-	        if ("expense".equals(transaction.getType())) {
-	            totalExpense += transaction.getAmount();
+	        if (transaction.getAmount() < 0) {
+	            totalExpense += Math.abs(transaction.getAmount());
 	        }
 	    }
 	    return totalExpense;
@@ -188,14 +189,8 @@ final class TransactionLedger implements Comparable<TransactionLedger> {
 		for (Transaction transaction : this.transactions) {
 			if (transaction.getDate().getMonthValue() != month) {
 				continue;
-			}
-			
-			if ("income".equals(transaction.getType())) {
+			}		
 				netIncome += transaction.getAmount();
-            }
-			if ("expense".equals(transaction.getType())) {
-				netIncome -= transaction.getAmount();
-			}
 		}
 		
 		return netIncome;

@@ -106,6 +106,6 @@ public class ReportService implements ReportGenerator {
      */
 
     public String formatReport(ReportData data) {
-        return data.toString();
+        return new ReportFormatter().formatAsText(data);
     }
 }

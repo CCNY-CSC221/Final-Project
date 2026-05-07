@@ -7,8 +7,18 @@ import java.util.*;
 public class Insights {
 
 	private List<String> excludedCategories = new ArrayList<>();
+
 	// Removed the private static final List<String> VALID_CATEGORIES - No longer
 	// needed
+	/**
+	 * PRIVATE HELPER: Unified rule for identifying an expense. Checks for negative
+	 * amounts OR the explicit "expense" label.
+	 */
+	private boolean isExpense(Transaction t) {
+		float amount = t.getAmount();
+		String type = t.getType();
+		return (amount < 0 || "expense".equalsIgnoreCase(type));
+	}
 
 	/**
 	 * * Calculates required spending cuts for specific categories.
@@ -19,34 +29,31 @@ public class Insights {
 	 */
 	public Map<String, Float> analyzeDeficit(TransactionLedger ledger, List<String> targetCategories) {
 		Map<String, Float> reductionSuggestions = new HashMap<>();
-		DataValidator validator = new DataValidator();
-
-		// Safety Check: Return empty map if ledger is null or no categories are
-		// provided
-		if (ledger == null || targetCategories == null || targetCategories.isEmpty()) {
+		if (ledger == null || targetCategories == null || targetCategories.isEmpty())
 			return reductionSuggestions;
+
+		float totalIncome = 0;
+		float totalExpense = 0;
+
+		for (Transaction t : ledger.getTransactions()) {
+			if (isExpense(t)) {
+				totalExpense += Math.abs(t.getAmount());
+			} else if ("income".equalsIgnoreCase(t.getType())) {
+				totalIncome += Math.abs(t.getAmount());
+			}
 		}
 
-		// REAL INTEGRATION: Using live data from the storage module
-		float totalIncome = ledger.getTotalIncome();
-	    float totalExpense = ledger.getTotalExpense();
-	    float totalDeficit = totalExpense - totalIncome;
-
-		// Surplus Check: If no deficit exists, no reductions needed
-		if (totalDeficit <= 0) {
+		float totalDeficit = totalExpense - totalIncome;
+		if (totalDeficit <= 0)
 			return reductionSuggestions;
-		}
 
-		// Proportional Reduction Logic
 		float cutAmountPerCategory = totalDeficit / targetCategories.size();
-
+		DataValidator validator = new DataValidator();
 		for (String category : targetCategories) {
-			// Validation check before adding to suggestions
 			if (validator.isValidCategory(category)) {
 				reductionSuggestions.put(category, cutAmountPerCategory);
 			}
 		}
-
 		return reductionSuggestions;
 	}
 
@@ -58,37 +65,24 @@ public class Insights {
 	 */
 	public Map<String, Float> calculatePercentageBreakdown(TransactionLedger ledger) {
 		Map<String, Float> percentages = new HashMap<>();
-		Map<String, Float> categoryTotals = ledger.getCategoryTotals();
-
 		float totalExpenses = 0.0f;
+		Map<String, Float> expenseTotals = new HashMap<>();
 
-		// Find total expenses of non excluded categories.
-		for (Map.Entry<String, Float> entry : categoryTotals.entrySet()) {
-			String category = entry.getKey();
-			float totalAmount = entry.getValue();
-
-			if (totalAmount < 0 && !this.excludedCategories.contains(category)) {
-				totalExpenses += Math.abs(totalAmount);
+		for (Transaction t : ledger.getTransactions()) {
+			// Using isExpense to ensure logic matches analyzeDeficit
+			if (isExpense(t) && !this.excludedCategories.contains(t.getCategory())) {
+				float absAmount = Math.abs(t.getAmount());
+				totalExpenses += absAmount;
+				expenseTotals.put(t.getCategory(), expenseTotals.getOrDefault(t.getCategory(), 0f) + absAmount);
 			}
 		}
 
-		// Prevent dividing by 0.
-		if (totalExpenses == 0.0f) {
+		if (totalExpenses == 0.0f)
 			return percentages;
+
+		for (Map.Entry<String, Float> entry : expenseTotals.entrySet()) {
+			percentages.put(entry.getKey(), (entry.getValue() / totalExpenses) * 100f);
 		}
-
-		// Calculate percentage for each valid category
-		for (Map.Entry<String, Float> entry : categoryTotals.entrySet()) {
-			String category = entry.getKey();
-			float totalAmount = entry.getValue();
-
-			if (totalAmount < 0 && !this.excludedCategories.contains(category)) {
-				float categoryTotal = Math.abs(totalAmount);
-				float percentage = (categoryTotal / totalExpenses) * 100f;
-				percentages.put(category, percentage);
-			}
-		}
-
 		return percentages;
 	}
 
@@ -123,45 +117,38 @@ public class Insights {
 	 * @param targetCategories Categories to potentially increase.
 	 */
 	public Map<String, Float> analyzeSurplus(TransactionLedger ledger, List<String> targetCategories) {
-
 		Map<String, Float> analysis = new HashMap<>();
+		float totalIncome = 0;
+		float totalExpense = 0;
+		Map<String, Float> categoryMap = new HashMap<>();
 
-		Float income = ledger.getTotalIncome(); // total income taken from ledger method.
-		Float expense = ledger.getTotalExpense(); // total expenses taken from a ledger method.
-		Map<String, Float> expenseCategories = ledger.getCategoryTotals(); // map of category to their expense.
-
-		float surplus = income - expense; // Formula for surplus to be used in analyzing
-
-		if (surplus <= 0) {
-			return analysis; // A surplus value of 0 or less means there is nothing to analyze.
-		}
-
-		float totalPerCategory = 0; // THIS MAY BE REDUNDANT AND IF SO ILL FIX IT POST ALPHA-BUILD. the total amount
-									// spent on individual categories.
-
-		for (String category : targetCategories) {// Adding expenses
-			if (expenseCategories.containsKey(category)) {
-				float amount = expenseCategories.get(category);
-				if (amount < 0) {
-					totalPerCategory += Math.abs(amount);
-				}
+		for (Transaction t : ledger.getTransactions()) {
+			float amount = Math.abs(t.getAmount());
+			if ("income".equalsIgnoreCase(t.getType())) {
+				totalIncome += amount;
+			} else if (isExpense(t)) {
+				totalExpense += amount;
+				categoryMap.put(t.getCategory(), categoryMap.getOrDefault(t.getCategory(), 0f) + amount);
 			}
 		}
 
-		if (totalPerCategory == 0) {
+		float surplus = totalIncome - totalExpense;
+		if (surplus <= 0)
 			return analysis;
+
+		float totalOfTargets = 0;
+		for (String cat : targetCategories) {
+			if (categoryMap.containsKey(cat))
+				totalOfTargets += categoryMap.get(cat);
 		}
 
-		for (String category : targetCategories) {
-			if (expenseCategories.containsKey(category)) {
-				float amount = expenseCategories.get(category);
-				if (amount < 0) {
-					float percentageWeight = Math.abs(amount) / totalPerCategory; // Find the amount that the category
-																					// takes.
-					float money = surplus * percentageWeight; // Multiply our surplus by that weight to determine how
-																// much is spent on the category.
-					analysis.put(category, money);
-				}
+		if (totalOfTargets == 0)
+			return analysis;
+
+		for (String cat : targetCategories) {
+			if (categoryMap.containsKey(cat)) {
+				float weight = categoryMap.get(cat) / totalOfTargets;
+				analysis.put(cat, surplus * weight);
 			}
 		}
 		return analysis;
@@ -178,31 +165,26 @@ public class Insights {
 		Map<String, Float> percentBreakdown = calculatePercentageBreakdown(ledger); // reference to @Wilson's method.
 		insightsOutput.displayToConsole(percentBreakdown);// Send it to InsightsOutputs for display.
 
-		// TransactionLedger tl = (TransactionLedger) ledger;//Same logic as previous,
-		// we cast to get access to category totals.
-		Map<String, Float> categoryTotals = ledger.getCategoryTotals();
-
-		List<String> targetCategories = new ArrayList<>();// New ArrayList for categories we want to store.
-
-		for (String category : categoryTotals.keySet()) {
-			float amount = categoryTotals.get(category);// Retrieves expenses to be filtered.
-
-			if (amount < 0) {// Filters out expenses
-				targetCategories.add(category);// If its not an expense, it adds it to the ArrayList.
+		List<String> targetCategories = new ArrayList<>();
+		// We loop through transactions to make sure we ONLY analyze spending categories
+		for (Transaction t : ledger.getTransactions()) {
+			if (isExpense(t)) {
+				if (!targetCategories.contains(t.getCategory())) {
+					targetCategories.add(t.getCategory());
+				}
 			}
 		}
 
 		Map<String, Float> surplus = analyzeSurplus(ledger, targetCategories);// run analyze surplus.
 		Map<String, Float> deficit = analyzeDeficit(ledger, targetCategories);// run analyze defecit.
 
-		if (surplus.isEmpty() == false) {// if there is a surplus print it.
-			System.out.println("Surplus Analysis: ");
-			insightsOutput.displayToConsole(surplus);
-
-		} else if (deficit.isEmpty() == false) {// same as before.
+		// THE FIX: Smart toggle ensures we display data even if there is a surplus
+		if (deficit.isEmpty() == false) { // if there is a deficit print it.
 			System.out.println("Deficit Analysis: ");
 			insightsOutput.displayToConsole(deficit);
-
+		} else if (surplus.isEmpty() == false) { // same as before, but for surplus.
+			System.out.println("Surplus Analysis: ");
+			insightsOutput.displayToConsole(surplus);
 		} else {
 			System.out.println("No surplus or deficit to analyze.");
 		}

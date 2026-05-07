@@ -1,8 +1,9 @@
+// @author Edison
 // Import external dependencies
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
-
-
+import java.util.Set;
 
 /**
  * Represents a single financial transaction.
@@ -11,11 +12,15 @@ final class Transaction implements Comparable<Transaction> {
 	// Object fields 
 	private LocalDate date;
 	private String category;
-	private String description;
+	private static final Set<String> VALID_CATEGORIES = Set.of(
+    // Income
+    "Compensation", "Allowance", "Investments", "Other",
+    // Expenses
+    "Home", "Utilities", "Food", "Appearance", "Work", "Education", "Transportation", "Entertainment", "Professional Services"
+);
 	private float amount;
-	private String type;
-	
-	
+	private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+
 	/**
      * Creates a copy transaction from other.
      *
@@ -28,28 +33,21 @@ final class Transaction implements Comparable<Transaction> {
 		}
 	  	this.setDate(other.date);
     	this.setCategory(other.category);
-    	this.setDescription(other.description);
     	this.setAmount(other.amount);
-    	this.setType(other.type);
 	}
     /**
      * Creates a transaction object.
      *
      * @param date transaction date
      * @param category transaction category
-     * @param description transaction description
      * @param amount transaction amount
-     * @param type transaction type ("income" or "expense")
      * @throws IllegalArgumentException if any value is invalid
      */
-    public Transaction(LocalDate date, String category, String description, float amount, String type) {
+    public Transaction(LocalDate date, String category, float amount) {
     	this.setDate(date);
     	this.setCategory(category);
-    	this.setDescription(description);
     	this.setAmount(amount);
-    	this.setType(type);
     }
-
     
     /**
      * Parses a CSV row into a Transaction object.
@@ -60,19 +58,19 @@ final class Transaction implements Comparable<Transaction> {
      */
     public static Transaction createFromCSVText(String text) throws IllegalArgumentException {
     	text = text.replace("\uFEFF", "");
-    	text = text.replace("  ", " ");
+    	text = text.replace("\r", "");
     	String[] parts = text.split(",", -1);
     	
-    	if (parts.length < 5) {
-    		throw new IllegalArgumentException("[Transaction.createFromCSVText] ---> Not enough data in the CSV text, expected 5 elements, received: " + parts.length + "."); 
+    	if (parts.length < 3) {
+    		throw new IllegalArgumentException("[Transaction.createFromCSVText] ---> Not enough data in the CSV text, expected 3 elements, received: " + parts.length + "."); 
     	}
-    	if (parts.length > 5) {
-    		throw new IllegalArgumentException("[Transaction.createFromCSVText] ---> Too much data in the CSV text, expected 5 elements, received: " + parts.length + "."); 
+    	if (parts.length > 3) {
+    		throw new IllegalArgumentException("[Transaction.createFromCSVText] ---> Too much data in the CSV text, expected 3 elements, received: " + parts.length + "."); 
     	}
     	
     	LocalDate date;
     	try {
-    		date = LocalDate.parse(parts[0].trim());
+    		date = LocalDate.parse(parts[0].trim(),DATE_FORMAT);
     	}
     	catch (Exception exception) {
     		throw new IllegalArgumentException("[Transaction.createFromCSVText] ---> Parsing problem for date parameter ---> " + exception); 
@@ -86,33 +84,17 @@ final class Transaction implements Comparable<Transaction> {
     		throw new IllegalArgumentException("[Transaction.createFromCSVText] ---> Parsing problem for category parameter ---> " + exception); 
     	}
     	
-    	String description;
-    	try {
-    		description = parts[2].trim();
-    	}
-    	catch (Exception exception) {
-    		throw new IllegalArgumentException("[Transaction.createFromCSVText] ---> Parsing problem for description parameter ---> " + exception); 
-    	}
-    	
     	float amount;
     	try {
-    		amount = Float.parseFloat(parts[3].trim());
+    		amount = Float.parseFloat(parts[2].trim());
     	}
     	catch (Exception exception) {
     		throw new IllegalArgumentException("[Transaction.createFromCSVText] ---> Parsing problem for amount parameter ---> " + exception); 
     	}
     	
-    	String type;
-    	try {
-    		type = parts[4].trim();
-    	}
-    	catch (Exception exception) {
-    		throw new IllegalArgumentException("[Transaction.createFromCSVText] ---> Parsing problem for type parameter ---> " + exception); 
-    	}
-    	
     	Transaction transaction;
     	try {
-    	    transaction = new Transaction(date, category, description, amount, type);
+    	    transaction = new Transaction(date, category, amount);
     	}
     	catch (Exception exception) {
     		throw new IllegalArgumentException("[Transaction.createFromCSVText] ---> Initialization problem ---> " + exception); 
@@ -128,11 +110,9 @@ final class Transaction implements Comparable<Transaction> {
      */
     public String transformToCSVText() {
     	String text = "";	
-    	text += date        + ",";
-    	text += category    + ",";
-    	text += description + ",";
-    	text += amount      + ",";
-    	text += type        + "\n";
+    	text += date.format(DATE_FORMAT) + ",";
+    	text += category + ",";
+    	text += (int) amount; 
     	return text;
     }
 
@@ -161,42 +141,20 @@ final class Transaction implements Comparable<Transaction> {
      * @param category new category
      * @throws IllegalArgumentException if null, empty or contains '\\n'
      */
-    public void setCategory(String category) throws IllegalArgumentException {
-    	if (category == null) {
-    		throw new IllegalArgumentException("[Transaction.setCategory] ---> Category cannot be null.");
-    	}
-    	if (category.isEmpty()) {
-    		throw new IllegalArgumentException("[Transaction.setCategory] ---> Category cannot be empty.");
-    	}    	
-    	if (category.contains("\n")) {
-    		throw new IllegalArgumentException("[Transaction.setCategory] ---> Category cannot contain '\\n'.");
-    	}
+	public void setCategory(String category) throws IllegalArgumentException {
+    	if (category == null)
+        	throw new IllegalArgumentException("[Transaction.setCategory] ---> Category cannot be null.");
+    	if (category.isEmpty())
+        	throw new IllegalArgumentException("[Transaction.setCategory] ---> Category cannot be empty.");
+    	if (category.contains("\n"))
+        	throw new IllegalArgumentException("[Transaction.setCategory] ---> Category cannot contain '\\n'.");
+   		if (!VALID_CATEGORIES.contains(category))
+        	throw new IllegalArgumentException(
+                "[Transaction.setCategory] ---> Invalid category: \"" + category + "\". " +
+                "Must be one of: " + VALID_CATEGORIES);
     	this.category = category;
-    }
-
-    
-    /** @return description */
-    public String getDescription() {
-    	return this.description;
-    }
-    /**
-     * @param description new description
-     * @throws IllegalArgumentException if null, empty or contains '\\n'
-     */
-    public void setDescription(String description) {
-    	if (description == null) {
-    		throw new IllegalArgumentException("[Transaction.setDescription] ---> Description cannot be null.");
-    	}
-    	if (description.isEmpty()) {
-    		throw new IllegalArgumentException("[Transaction.setDescription] ---> Description cannot be empty.");
-    	}
-    	if (description.contains("\n")) {
-    		throw new IllegalArgumentException("[Transaction.setDescription] ---> Description cannot contain '\\n'.");
-    	}
-    	this.description = description;
-    }
-
-    
+	}
+	
     /** @return amount */
     public float getAmount() {
     	return this.amount;
@@ -212,28 +170,14 @@ final class Transaction implements Comparable<Transaction> {
     	if (Float.isInfinite(amount)) {
     		throw new IllegalArgumentException("[Transaction.setAmount] ---> Amount cannot be infinite.");
     	}
-    	if (amount < 0) {
-    		throw new IllegalArgumentException("[Transaction.setAmount] ---> Amount cannot be negative.");
-    	}
     	this.amount = amount;
     }
 
     
     /** @return type */
     public String getType() {
-    	return this.type;
+    	return amount >= 0 ? "income" : "expense";
     }
-    /**
-     * @param type transaction type ("income" or "expense")
-     * @throws IllegalArgumentException if invalid type
-     */
-    public void setType(String type) throws IllegalArgumentException {
-    	if (!type.equals("income") && !type.equals("expense")) {
-    		throw new IllegalArgumentException("[Transaction.setType] ---> Type cannot be '" + type + "', only \"income\" or \"expense\".");
-    	}
-    	this.type = type;
-    }
-
     
     /**
      * Returns a hash code value for the transaction.
@@ -242,7 +186,7 @@ final class Transaction implements Comparable<Transaction> {
      */
     @Override
 	public int hashCode() {
-		return Objects.hash(amount, category, date, description, type);
+		return Objects.hash(amount, category, date);
 	}
     /**
      * Compares this transaction to the specified object.
@@ -261,9 +205,7 @@ final class Transaction implements Comparable<Transaction> {
 		Transaction other = (Transaction) obj;
 		return Objects.equals(date, other.date)                                    && 
 				Objects.equals(category, other.category)                           && 
-				Objects.equals(description, other.description)                     && 
-				Float.floatToIntBits(amount) == Float.floatToIntBits(other.amount) && 
-				Objects.equals(type, other.type);
+				Float.floatToIntBits(amount) == Float.floatToIntBits(other.amount);
 	}
     /**
      * Compares transactions by date.

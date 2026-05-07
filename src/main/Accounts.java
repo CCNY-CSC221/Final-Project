@@ -1,3 +1,4 @@
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +20,10 @@ public class Accounts {
     /**
      * Default constructor
      */
-    public Accounts() {
+    public Accounts(boolean skipLoad) {
+        if (!skipLoad) {
+            loadExistingAccounts();
+        }
     }
 
     /**
@@ -42,31 +46,28 @@ public class Accounts {
      */
     public boolean createAccount(String username, String password,
                                  String secretQuestion, String secretAnswer) {
-
         if (username == null || username.isBlank() ||
             password == null || password.isBlank() ||
             secretQuestion == null || secretQuestion.isBlank() ||
             secretAnswer == null || secretAnswer.isBlank()) {
             return false;
         }
-
         AccountStorage storage = new AccountStorage();
-
         if (storage.loadAccountFromFile(username) != null) {
             return false;
         }
 
-        this.username = username;
-        this.password = storage.obfuscatePassword(password);
-        this.secretQuestion = secretQuestion;
-        this.secretAnswer = secretAnswer;
-        this.signedIn = false;
+        // Create new account object (constructor remains thin)
+        Accounts newAccount = new Accounts(username, password,
+                                           secretQuestion, secretAnswer);
 
-        if (storage.saveAccountToFile(this, username)) {
-            accounts.add(this);
+        // Encode password before saving and storing in memory
+        newAccount.setPassword(storage.obfuscatePassword(password));
+
+        if (storage.saveAccountToFile(newAccount, username)) {
+            accounts.add(newAccount);
             return true;
         }
-
         return false;
     }
 
@@ -77,7 +78,6 @@ public class Accounts {
      * @author Samuel Dewangga
      */
     public boolean deleteAccount(String username, String password) {
-
         if (username == null || username.isBlank() ||
             password == null || password.isBlank()) {
             return false;
@@ -95,8 +95,15 @@ public class Accounts {
             return false;
         }
 
-        accounts.remove(existing);
-        return true;
+        accounts.removeIf(account ->
+                account.getUsername().equals(username));
+
+        File file = new File("accounts/" + username + ".txt");
+        if (file.exists()) {
+            return file.delete();
+        }
+
+        return false;
     }
 
     /**
@@ -142,6 +149,8 @@ public class Accounts {
 
         account.setSecretQuestion(newQuestion);
         account.setSecretAnswer(newAnswer);
+        AccountStorage storage = new AccountStorage();
+        storage.saveAccountToFile(account, username);  // Save updated account to file
         return true;
     }
 
@@ -210,7 +219,7 @@ public class Accounts {
     /**
      * Changes the password for an existing user account.
      *
-     * @param username    the username of the account
+     * @param username the username of the account
      * @param oldPassword the current password to verify identity
      * @param newPassword the new password to set
      * @return true if the password is successfully changed, false otherwise
@@ -219,59 +228,52 @@ public class Accounts {
     public boolean changePassword(String username,
                                   String oldPassword,
                                   String newPassword) {
-
         if (username == null || username.isBlank() ||
             oldPassword == null || oldPassword.isBlank() ||
             newPassword == null || newPassword.isBlank()) {
             return false;
         }
-
         Accounts account = readAccount(username);
         if (account == null) {
             return false;
         }
-
         AccountStorage storage = new AccountStorage();
-
         if (!storage.obfuscatePassword(oldPassword)
-                .equals(account.getPassword())) {
+                .equals(account.getPassword())) {   // Compare with encoded password
             return false;
         }
-
-        account.setPassword(storage.obfuscatePassword(newPassword));
+        account.setPassword(storage.obfuscatePassword(newPassword));  // Encode new password
+        storage.saveAccountToFile(account, username);  // Save updated account to file
         return true;
     }
 
     /**
      * Resets the password using a secret question answer.
      *
-     * @param username     the username of the account
+     * @param username the username of the account
      * @param secretAnswer the answer to the secret question
-     * @param newPassword  the new password to set
+     * @param newPassword the new password to set
      * @return true if the password is successfully reset, false otherwise
      * @author Ayman Ahsan
      */
     public boolean resetPasswordBySecretQuestion(String username,
                                                  String secretAnswer,
                                                  String newPassword) {
-
         if (username == null || username.isBlank() ||
             secretAnswer == null || secretAnswer.isBlank() ||
             newPassword == null || newPassword.isBlank()) {
             return false;
         }
-
         if (!verifySecretAnswer(username, secretAnswer)) {
             return false;
         }
-
         Accounts account = readAccount(username);
         if (account == null) {
             return false;
         }
-
         AccountStorage storage = new AccountStorage();
-        account.setPassword(storage.obfuscatePassword(newPassword));
+        account.setPassword(storage.obfuscatePassword(newPassword));  // Encode new password
+        storage.saveAccountToFile(account, username);  // Save updated account to file
         return true;
     }
 
@@ -299,6 +301,52 @@ public class Accounts {
         return secretAnswer.equals(account.getSecretAnswer());
     }
 
+/**
+ * Loads all existing accounts from the accounts folder
+ * into the static accounts ArrayList.
+ *
+ *@author Jin Chao Chen
+ */
+private void loadExistingAccounts() {
+    File folder = new File("accounts/");
+
+    // If folder doesn't exist, nothing to load
+    if (!folder.exists() || !folder.isDirectory()) {
+        return;
+    }
+
+    AccountStorage storage = new AccountStorage();
+    File[] files = folder.listFiles();
+
+    if (files == null) {
+        return;
+    }
+
+    for (File file : files) {
+        // Only process .txt account files
+        if (file.isFile() && file.getName().endsWith(".txt")) {
+            String filename = file.getName().replace(".txt", "");
+
+            Accounts loadedAccount = storage.loadAccountFromFile(filename);
+
+            if (loadedAccount != null) {
+                // Prevent duplicates if constructor runs multiple times
+                boolean exists = false;
+
+                for (Accounts account : accounts) {
+                    if (account.getUsername().equals(loadedAccount.getUsername())) {
+                        exists = true;
+                        break;
+                    }
+                }
+
+                if (!exists) {
+                    accounts.add(loadedAccount);
+                }
+            }
+        }
+    }
+}
     // Getters
 
     public String getUsername() { return username; }

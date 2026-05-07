@@ -1,11 +1,6 @@
-import java.io.IOException;
-// Import the Storage Team's tools
-// import Storage.FileFolderManager; 
-// import Storage.StorageService;
-
 /**
  * This class handles the main checks for the entire budget file.
- * * @author Sharif, Redwan, Elham, Jamis (Validation Team)
+ * @author Sharif, Redwan, Elham, Jamis (Validation Team)
  */
 public class FileChecker {
 
@@ -13,7 +8,7 @@ public class FileChecker {
 
     /**
      * Default constructor for FileChecker.
-     * * @author Sharif
+     * @author Sharif
      */
     public FileChecker() {
         this.validator = new DataValidator();
@@ -21,7 +16,7 @@ public class FileChecker {
 
     /**
      * Runs all the validation steps for the file.
-     * * @param filePath The path of the file to be checked
+     * @param filePath The path of the file to be checked
      * @return true if the file passes all checks, false otherwise
      * @author Sharif
      */
@@ -31,26 +26,20 @@ public class FileChecker {
         }
 
         try {
-            // Uses Storage Team's FileFolderManager to read the CSV
-            // String fileContent = FileFolderManager.readFile(filePath);
-            
-            // Placeholder text so the code can be tested for now
-            String fileContent = "Date,Category,Amount\n01/01/2024,Food,-50"; 
+            String fileContent = FileFolderManager.readFile(filePath);
 
             if (fileContent == null || fileContent.trim().isEmpty()) {
                 return false;
             }
 
-            // Split the file into rows
             String[] rows = fileContent.split("\n");
 
-            // Check if the header row is correct
             if (!checkTopRow(rows[0])) {
                 return false;
             }
 
-            // Loop through the data rows (skip the header at index 0)
             for (int i = 1; i < rows.length; i++) {
+                if (rows[i].trim().isEmpty()) continue; // Skip empty lines safely
                 if (!checkRow(rows[i])) {
                     return false;
                 }
@@ -65,7 +54,7 @@ public class FileChecker {
 
     /**
      * Makes sure an individual line of data is correct.
-     * * @param rowData A string representing a single row of data
+     * @param rowData A string representing a single row of data
      * @return true if the row is formatted correctly, false otherwise
      * @author Sharif
      */
@@ -74,13 +63,13 @@ public class FileChecker {
             return false;
         }
 
-        String[] rowPieces = rowData.split(",");
+        String[] rowPieces = rowData.split(",", -1);
 
+        // Project Spec: 3 parts
         if (rowPieces.length != 3) {
             return false;
         }
 
-        // Pass each piece to our DataValidator class
         String datePiece = rowPieces[0].trim();
         String categoryPiece = rowPieces[1].trim();
         String amountPiece = rowPieces[2].trim();
@@ -92,7 +81,7 @@ public class FileChecker {
 
     /**
      * Ensures the column names are in the right places.
-     * * @param headerRow The first line of the file
+     * @param headerRow The first line of the file
      * @return true if headers match expected values
      * @author Sharif
      */
@@ -100,12 +89,14 @@ public class FileChecker {
         if (headerRow == null || headerRow.trim().isEmpty()) {
             return false;
         }
-        return headerRow.trim().equalsIgnoreCase("Date,Category,Amount");
+        // FIX: Remove hidden BOM, use trim() to remove hidden \r, and strip spaces
+        String cleanHeader = headerRow.replace("\uFEFF", "").trim().replaceAll(" ", "");
+        return cleanHeader.equalsIgnoreCase("Date,Category,Amount");
     }
 
     /**
      * Verifies the file is named correctly (Example: 2024.csv).
-     * * @param fileName The name of the file
+     * @param fileName The name of the file
      * @return true if name is valid
      * @author Sharif
      */
@@ -116,12 +107,10 @@ public class FileChecker {
 
         String cleanName = fileName.trim();
 
-        // Must be exactly 8 characters: 4 digits + .csv
         if (cleanName.length() != 8 || !cleanName.endsWith(".csv")) {
             return false;
         }
 
-        // Check the first 4 characters for numbers
         for (int i = 0; i < 4; i++) {
             if (!Character.isDigit(cleanName.charAt(i))) {
                 return false;
@@ -132,7 +121,7 @@ public class FileChecker {
 
     /**
      * Confirms the file year matches the interior data year.
-     * * @param fileNameYear Year from name
+     * @param fileNameYear Year from name
      * @param fileDataYear Year from rows
      * @return true if match
      * @author Sharif
@@ -143,20 +132,13 @@ public class FileChecker {
 
     /**
      * Checks storage to see if this user already has this year's data.
-     * UPDATED: Accepts username from the Accounts Team.
-     * * @param username The name of the current user
+     * @param username The name of the current user
      * @param year The year to check
      * @return true if new, false if it exists
      * @author Sharif
      */
     public boolean checkNewYear(String username, int year) {
         try {
-            // Integration: This will be called by the Accounts Team 
-            // once they integrate our check into their login/load flow.
-            
-            // UserStorage user = StorageService.loadUserStorage(username);
-            // return !user.hasLedgerForYear(year);
-            
             return true; // Default to true until Storage logic is fully ready
         } catch (Exception e) {
             return true;

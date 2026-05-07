@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
  *
  * @author Raphy Binet Cedeno, Thierno Diallo
  */
-public class AuditData {
+public class AuditData<T> {
     private final Function<String, T> parser;
 
     private static final double ANOMALY_THRESHOLD = 0.50;

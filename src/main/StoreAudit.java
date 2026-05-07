@@ -19,11 +19,11 @@ public class StoreAudit {
 
     /**
      * Initializes the audit directory if it doesn't exist. 
-     * Uses {@link Files#createDirectories(Path)} to create {@link Files#createDirectories(Path)} as well
-     * as the nevessary parent directories. 
-     * using {@link java.io.File#mkdirs()}.
+     * Uses {@link java.nio.file.Files#createDirectories(java.nio.file.Path, java.nio.file.attribute.FileAttribute...)}
+     * to create the directory and any necessary parent directories.
      *
-     * @author Thierno Diallo & Zeferino Franco Salgado
+     * @author Thierno Diallo
+     * @author Zeferino Franco Salgado
      */
     public StoreAudit() {
         try {
@@ -36,7 +36,7 @@ public class StoreAudit {
     /**
      * Saves the generated audit report for a user and year.
      *
-     * @paraim username the username associated with the audit
+     * @param username the username associated with the audit
      * @param year the calendar year selected for audit
      * @param report the audit report content to save
      * @return true if the audit report input is valid for saving; false otherwise
@@ -82,7 +82,8 @@ public class StoreAudit {
      * @return {@code true} if at least one file was successfully deleted; {@code false}
      * if no matching files were found, deletion failed, or input validation failed.
      *
-     * @author Thierno Diallo & Zeferino Franco Salgado
+     * @author Thierno Diallo
+     * @author Zeferino Franco Salgado
      */
     public boolean purgeRecords(String username, String timeframe) {
         if (username == null || username.trim().isEmpty() || timeframe == null) {

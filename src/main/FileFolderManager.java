@@ -1,3 +1,4 @@
+// @author Andre 
 // Import external dependencies
 import java.nio.charset.StandardCharsets;
 import java.io.File;

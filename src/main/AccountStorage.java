@@ -12,7 +12,7 @@ public class AccountStorage {
     /**
      * Saves an account to a file.
      *
-     * @param account  the Accounts object to be saved
+     * @param account the Accounts object to be saved
      * @param filename the name of the file where the account will be saved
      * @return true if saved successfully, false otherwise
      * @author Ayman Ahsan
@@ -26,7 +26,7 @@ public class AccountStorage {
         File file = new File(ACCOUNTS_DIR + filename + ".txt");
         try (PrintWriter writer = new PrintWriter(new FileWriter(file))) {
             writer.println(account.getUsername());
-            writer.println(account.getPassword());
+            writer.println(account.getPassword());  // Now expects already encoded password
             writer.println(account.getSecretQuestion());
             writer.println(account.getSecretAnswer());
             return true;
@@ -56,7 +56,7 @@ public class AccountStorage {
                 secretQuestion == null || secretAnswer == null) {
                 return null;
             }
-            Accounts account = new Accounts();
+            Accounts account = new Accounts(true);
             account.setUsername(username);
             account.setPassword(password);
             account.setSecretQuestion(secretQuestion);
