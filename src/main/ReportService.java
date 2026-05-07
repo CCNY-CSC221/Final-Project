@@ -18,20 +18,20 @@ public class ReportService implements ReportGenerator {
          * @param userId the user identifier
          * @param year the report year
          * @param reportType the type of report to generate (e.g., "annual", "category", "monthly")
+         * @return the generated report as a string, or null if generation fails
     */
-    private void generateReport(String userId, int year, String reportType) {
+    private String generateReport(String userId, int year, String reportType) {
 
         UserStorage user = StorageService.loadUserStorage(userId);
 
         if(!user.hasLedgerForYear(year)) {
-            System.out.println("No ledger data found for user " + userId + " in year " + year);
-            return;
+            return ("No ledger data found for user " + userId + " in year " + year);
         }
         TransactionLedger ledger = user.getLedgerByYear(year);
         
         ReportData data = new ReportData(ledger);
 
-        System.out.println(formatReport(data));
+        return formatReport(data , reportType);
 
     }
 
@@ -42,11 +42,12 @@ public class ReportService implements ReportGenerator {
      *
      * @param userId the user identifier
      * @param year the report year
+     * @return the generated annual report as a string
      */
     @Override
-    public void generateAnnualReport(String userId, int year) {
+    public String generateAnnualReport(String userId, int year) {
 
-        generateReport(userId, year,"annual");
+        return generateReport(userId, year,"annual");
 
         
     }
@@ -56,11 +57,12 @@ public class ReportService implements ReportGenerator {
      *
      * @param userId the user identifier
      * @param year the report year
+     * @return the generated category report as a string
      */
     @Override
-    public void generateCategoryReport(String userId, int year) {
+    public String generateCategoryReport(String userId, int year) {
 
-        generateReport(userId, year,"category");
+        return generateReport(userId, year,"category");
 
         
     }
@@ -70,11 +72,12 @@ public class ReportService implements ReportGenerator {
      *
      * @param userId the user identifier
      * @param year the report year
+     * @return the generated monthly summary report as a string
      */
     @Override
-    public void generateMonthlySummary(String userId, int year) {
+    public String generateMonthlySummary(String userId, int year) {
 
-        generateReport(userId, year,"monthly");
+        return generateReport(userId, year,"monthly");
 
     }
 
@@ -82,10 +85,11 @@ public class ReportService implements ReportGenerator {
      * Formats report data into a readable string.
      *
      * @param data the report data
+     * @param title the title of the report (e.g., "Annual", "Category", "Monthly")
      * @return formatted report text
      */
 
-    public String formatReport(ReportData data) {
-        return new ReportFormatter().formatAsText(data);
+    public String formatReport(ReportData data, String title) {
+        return new ReportFormatter().formatAsText(data, title);
     }
 }

@@ -14,8 +14,9 @@ interface ReportGenerator {
      *
      * @param userId the unique identifier of the user
      * @param year the year for which the report is generated
+     * @return a string representation of the annual report
      */
-    void generateAnnualReport(String userId, int year);
+    String generateAnnualReport(String userId, int year);
 
     /**
      * Generates a category-based financial report for a specific user and year.
@@ -23,8 +24,9 @@ interface ReportGenerator {
      *
      * @param userId the unique identifier of the user
      * @param year the year for which the report is generated
+     * @return a string representation of the category report
      */
-    void generateCategoryReport(String userId, int year);
+    String generateCategoryReport(String userId, int year);
 
     /**
      * Generates a monthly summary report for a specific user and year.
@@ -32,6 +34,7 @@ interface ReportGenerator {
      *
      * @param userId the unique identifier of the user
      * @param year the year for which the report is generated
+     * @return a string representation of the monthly summary report
      */
-    void generateMonthlySummary(String userId, int year);
+    String generateMonthlySummary(String userId, int year);
 }
