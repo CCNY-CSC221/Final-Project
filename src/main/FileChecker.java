@@ -49,7 +49,7 @@ public class FileChecker {
                 if (rows[i].trim().isEmpty()) continue; // Skip empty lines safely
                 
                 if (!checkRow(rows[i])) {
-                    // Log the exact line that broke!
+                    // Log the exact line that broke 
                     tracker.saveError("Validation failed on Row " + (i + 1) + ": " + rows[i]);
                     tracker.printResults(); // Print it to the console for the Test Team
                     return false;
