@@ -33,14 +33,25 @@ public class FileChecker {
             }
 
             String[] rows = fileContent.split("\n");
+            
+            // Create the IssueTracker to log exact failures for the Test Team
+            IssueTracker tracker = new IssueTracker();
 
+            // Check header row first
             if (!checkTopRow(rows[0])) {
+                tracker.saveError("Validation failed: Invalid header format in row 1. Expected 'Date,Category,Amount'.");
+                tracker.printResults();
                 return false;
             }
 
+            // Check interior data rows
             for (int i = 1; i < rows.length; i++) {
                 if (rows[i].trim().isEmpty()) continue; // Skip empty lines safely
+                
                 if (!checkRow(rows[i])) {
+                    // Log the exact line that broke!
+                    tracker.saveError("Validation failed on Row " + (i + 1) + ": " + rows[i]);
+                    tracker.printResults(); // Print it to the console for the Test Team
                     return false;
                 }
             }
@@ -48,17 +59,19 @@ public class FileChecker {
             return true;
 
         } catch (Exception e) {
+            System.out.println("Error processing the validation file.");
             return false;
         }
     }
 
     /**
      * Makes sure an individual line of data is correct.
+     * Made private to hide internal logic from other modules.
      * @param rowData A string representing a single row of data
      * @return true if the row is formatted correctly, false otherwise
      * @author Sharif
      */
-    public boolean checkRow(String rowData) {
+    private boolean checkRow(String rowData) {
         if (rowData == null || rowData.trim().isEmpty()) {
             return false;
         }
@@ -81,11 +94,12 @@ public class FileChecker {
 
     /**
      * Ensures the column names are in the right places.
+     * Made private to hide internal logic from other modules.
      * @param headerRow The first line of the file
      * @return true if headers match expected values
      * @author Sharif
      */
-    public boolean checkTopRow(String headerRow) {
+    private boolean checkTopRow(String headerRow) {
         if (headerRow == null || headerRow.trim().isEmpty()) {
             return false;
         }
