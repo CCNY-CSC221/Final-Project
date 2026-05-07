@@ -4,7 +4,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -59,7 +58,7 @@ public class StoreAudit {
                 "Year: " + year,
                 "Report:",
                 report
-                );
+        );
 
         try {
             Files.write(path, lines);
@@ -107,6 +106,52 @@ public class StoreAudit {
                     try {
                         Files.deleteIfExists(file.toPath());
                         deletedAny = true;
+                    } catch (IOException e) {
+                        System.err.println("Failed to delete file: " + file.getName() + " - " + e.getMessage());
+                    }
+                }
+            }
+        }
+
+        return deletedAny;
+    }
+
+    /**
+     * Deletes all audit report files belonging to a specific user.
+     *
+     * This method is intended to be used during account deletion to ensure
+     * no leftover audit files remain for the user.
+     *
+     * @param username the username whose audit files should be deleted
+     * @return true if at least one file was deleted; false otherwise
+     *
+     * @author Thierno Diallo
+     * @author Raphy Binet
+     */
+    public boolean deleteUserAuditFiles(String username) {
+        if (username == null || username.trim().isEmpty()) {
+            return false;
+        }
+
+        File dir = new File(BASE_DIR);
+        if (!dir.exists() || !dir.isDirectory()) {
+            return false;
+        }
+
+        boolean deletedAny = false;
+
+        // Matches files like username_2024_audit.txt
+        String regex = Pattern.quote(username) + "_\\d{4}_audit\\.txt";
+        Pattern pattern = Pattern.compile(regex);
+
+        File[] files = dir.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (pattern.matcher(file.getName()).matches()) {
+                    try {
+                        if (Files.deleteIfExists(file.toPath())) {
+                            deletedAny = true;
+                        }
                     } catch (IOException e) {
                         System.err.println("Failed to delete file: " + file.getName() + " - " + e.getMessage());
                     }
