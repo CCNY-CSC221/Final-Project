@@ -6,6 +6,9 @@ import java.util.ArrayList;
  */
 public class ErrorFinder {
 
+    // Store the header as a constant to improve maintainability 
+    private static final String HEADER = "Date,Category,Amount";
+
     private ArrayList<String> seenRows;
 
     /**
@@ -28,7 +31,9 @@ public class ErrorFinder {
         }
         
         String cleanContent = fileContent.replaceAll(" ", "");
-        if (cleanContent.equalsIgnoreCase("Date,Category,Amount")) {
+        String cleanHeader = HEADER.replaceAll(" ", "");
+        
+        if (cleanContent.equalsIgnoreCase(cleanHeader)) {
             return true;
         }
         
@@ -46,13 +51,10 @@ public class ErrorFinder {
             return true; 
         }
 
-        if (rowData.startsWith(",") || rowData.endsWith(",")) {
-            return true;
-        }
-
+        // Split by commas (the -1 ensures it counts trailing commas as empty fields)
         String[] pieces = rowData.split(",", -1);
         
-        // Project Spec: 3 pieces
+        // Project Spec: exactly 3 pieces
         if (pieces.length != 3) {
             return true;
         }
@@ -103,6 +105,7 @@ public class ErrorFinder {
             }
             
             // Allowed symbols: space, comma, slash (for dates), dash (for negative amounts)
+            // Explicitly blocking periods (.) because the rubric requires whole dollars with no cents.
             if (symbol == ' ' || symbol == ',' || symbol == '/' || symbol == '-') {
                 continue;
             }
