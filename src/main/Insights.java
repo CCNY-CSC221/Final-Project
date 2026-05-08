@@ -111,6 +111,7 @@ public class Insights {
 	public void setExcludedCategories(List<String> categories) {
 		DataValidator validator = new DataValidator();
 		if (categories == null) {
+			System.out.println("No categories listed to exclude.");
 			return;
 		}
 
